@@ -638,11 +638,12 @@ async function start(it){
     it.mount.appendChild(f); if (it.isTrack) it.el.classList.add('framed'); host(it).appendChild(it.mount);
   }
 }
-function play(i){
+function play(i, reveal){
   if (i < 0 || i >= items.length) return;
   if (cur !== -1 && cur !== i) stop(items[cur]);
   cur = i; const it = items[i];
   start(it);
+  if (reveal) requestAnimationFrame(() => revealItem(it));
   $('barImg').src = it.thumb; $('barTitle').textContent = it.title; $('barSub').textContent = it.sub;
   if (!bar.classList.contains('on')){ bar.classList.add('on'); requestAnimationFrame(() => document.documentElement.style.setProperty('--bar-h', bar.offsetHeight + 'px')); }
   syncPP();
@@ -660,8 +661,14 @@ function toggle(){
   else { it.playing ? stop(it) : start(it); }
   setTimeout(syncPP, 60);
 }
-function next(auto){ play((cur + 1) % items.length); }
-function prev(){ play((cur - 1 + items.length) % items.length); }
+function next(auto){ play((cur + 1) % items.length, true); }
+function prev(){ play((cur - 1 + items.length) % items.length, true); }
+/* bring the playing piece into view, clear of the header and the player bar */
+function revealItem(it){
+  const r = it.el.getBoundingClientRect(), barH = bar.classList.contains('on') ? bar.offsetHeight : 90;
+  const free = innerHeight - barH, y = scrollY + r.top - Math.max(90, (free - r.height)/2);
+  scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' });
+}
 function syncPP(){
   const p = isPlaying(items[cur]);
   $('ppBtn').setAttribute('aria-label', p ? 'Pause' : 'Play');
@@ -669,7 +676,7 @@ function syncPP(){
   items.forEach(o => o.el.classList.toggle('playing', o === items[cur] && p));
 }
 $('ppBtn').onclick = toggle; $('nextBtn').onclick = () => next(); $('prevBtn').onclick = prev;
-$('playall').onclick = () => play(0);
+$('playall').onclick = () => play(0, true);
 items.forEach(it => {
   const trig = it.isTrack ? it.el.querySelector('.disc') : it.el.querySelector('.go');
   trig.addEventListener('click', () => (cur === it.i ? toggle() : play(it.i)));
