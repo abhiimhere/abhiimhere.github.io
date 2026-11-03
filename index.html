@@ -297,7 +297,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <h3>Under the Jackfruit Tree</h3>
       <p class="role">Sound Recordist <i class="sep">|</i> Sound Designer <i class="sep">|</i> Composer</p>
       <p class="when">FTII <i class="sep">|</i> Documentary <i class="sep">|</i> February 2025</p>
-      <p class="d">Recorded on location across eight multilingual stories and shaped seamless transitions between them.</p>
+      <p class="d">Stories of people across India, about their emotions, relationships, identity and passions, with fruit quietly becoming the medium of expression between them. I recorded on location in many languages and shaped the transitions that carry one story into the next.</p>
     </div>
   </div>
 
@@ -693,6 +693,15 @@ function syncPP(){
   $('ppIcon').innerHTML = p ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M7 4v16l13-8z"/>';
   items.forEach(o => o.el.classList.toggle('playing', o === items[cur] && p));
 }
+/* turn phones to landscape when a video goes fullscreen */
+function onFs(){
+  const fs = document.fullscreenElement || document.webkitFullscreenElement;
+  const o = screen.orientation;
+  if (!o || !o.lock) return;
+  if (fs) o.lock('landscape').catch(()=>{}); else { try { o.unlock(); } catch(e){} }
+}
+document.addEventListener('fullscreenchange', onFs);
+document.addEventListener('webkitfullscreenchange', onFs);
 $('ppBtn').onclick = toggle; $('nextBtn').onclick = () => next(); $('prevBtn').onclick = prev;
 $('playall').onclick = () => play(0, true);
 items.forEach(it => {
