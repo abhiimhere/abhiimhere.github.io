@@ -421,8 +421,8 @@ function ensureAudioGraph(){
   // whole-page motion: every front swells and the swell travels with the scroll
   addEventListener('scroll', () => {
     const dy = scrollY - lastY; lastY = scrollY;
-    swell = Math.min(26, swell + Math.abs(dy) * .22);
-    vel += dy * .0045; vel = Math.max(-.6, Math.min(.6, vel));   // momentum, so the swell keeps travelling
+    swell = Math.min(9, swell + Math.abs(dy) * .06);
+    vel += dy * .0012; vel = Math.max(-.12, Math.min(.12, vel));   // momentum, so the swell keeps travelling
     if (dy) dir = Math.sign(dy);
     dirty = true;
   }, { passive:true });
@@ -460,7 +460,7 @@ function ensureAudioGraph(){
         let X = Sx + r*sx, Y = Sy + r*cy;
         if (Y < -40 || Y > h + 40) { started = false; continue; }
         // scroll swell: all fronts undulate together along their normal
-        let n = swell * Math.sin(th*16 - phase + i*.7) * (.6 + .4*Math.sin(th*5 + phase*.5 + i*.3));
+        let n = swell * Math.sin(th*9 - phase + i*.45) * (.65 + .35*Math.sin(th*3 + phase*.4 + i*.2));
         // music breathing
         if (music) n += music * Math.sin(th*22 + t*1.4 + i*.5) * Math.sin(th*6 - t*.4);
         let mag = Math.abs(n);
@@ -479,10 +479,10 @@ function ensureAudioGraph(){
       x.strokeStyle = `rgba(${Math.round(120+90*glow)},${Math.round(175+60*glow)},${Math.round(230+25*glow)},${(.08 + glow*.3)*depthFade})`;
       x.lineWidth = 1; x.stroke();
     }
-    // ease out like the pointer ripples: the swell keeps rolling and dies away over about 3 seconds
-    phase += vel + dir * .035 * Math.min(1, swell/8);
-    vel *= .94;
-    swell *= .972; if (swell < .04) { swell = 0; vel = 0; }
+    // slow, subtle swell that keeps rolling and dies away over about 6 seconds
+    phase += vel + dir * .012 * Math.min(1, swell/4);
+    vel *= .975;
+    swell *= .986; if (swell < .03) { swell = 0; vel = 0; }
     t += .016;
   }
   function loop(){
