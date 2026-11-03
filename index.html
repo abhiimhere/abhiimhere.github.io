@@ -33,7 +33,7 @@ a:hover{color:var(--vu)}
 :focus-visible{outline:2px solid var(--vu);outline-offset:3px;border-radius:2px}
 #field{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
 .page{position:relative;z-index:1}
-.page>.wrap{position:relative;z-index:1}
+.page>.wrap{position:relative;z-index:1;padding-top:14px}
 /* lit water surface: a softened photo over a glow, gently drifting like light through water */
 .surface{position:absolute;top:0;left:0;right:0;height:min(120vh,1100px);pointer-events:none;z-index:0;overflow:hidden;mix-blend-mode:screen;opacity:.55;-webkit-mask-image:linear-gradient(#000 0,rgba(0,0,0,.85) 22%,transparent 100%);mask-image:linear-gradient(#000 0,rgba(0,0,0,.85) 22%,transparent 100%);background:radial-gradient(70% 55% at 78% 0%,rgba(110,175,240,.35),transparent 70%),radial-gradient(60% 45% at 20% 0%,rgba(70,130,210,.22),transparent 70%)}
 .surface .lit{position:absolute;inset:-12% -12% 0 -12%;background:url(img/surface-soft.jpg) center top/cover no-repeat;filter:blur(6px);will-change:transform}
@@ -47,13 +47,17 @@ a:hover{color:var(--vu)}
 .wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
 
 /* header */
-.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font-size:15px}
-.top .me{font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.12em;font-size:13px}
-.top nav{display:flex;gap:22px;flex-wrap:wrap}
-.top nav a{text-decoration:none;color:var(--paper);opacity:.85;text-transform:uppercase;letter-spacing:.14em;font-size:12.5px;font-weight:500;text-shadow:0 1px 10px rgba(2,12,30,.85)}
-.top nav a:hover{opacity:1}
-.top .me{text-shadow:0 1px 10px rgba(2,12,30,.85)}
-.top nav a:hover{color:var(--paper)}
+/* header: frosted glass capsules that float over the banner and follow you down the page */
+.top{position:sticky;top:14px;z-index:15;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:15px}
+.glass{background:rgba(6,22,44,.42);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(170,210,250,.18);border-radius:999px;box-shadow:0 8px 30px rgba(1,8,20,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.top .me{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 14px;font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.12em;font-size:12.5px}
+.top .me .dot{width:8px;height:8px;border-radius:50%;background:var(--vu);box-shadow:0 0 0 4px rgba(227,163,59,.18)}
+.top nav{position:relative;display:flex;gap:2px;padding:5px}
+.top nav a{position:relative;z-index:1;padding:8px 14px;border-radius:999px;text-decoration:none;color:var(--paper);opacity:.82;text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:600;transition:opacity .2s,color .2s}
+.top nav a:hover{opacity:1;color:var(--paper)}
+.top nav a.on{opacity:1;color:var(--vu)}
+.top nav .ind{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:999px;background:rgba(227,163,59,.14);box-shadow:inset 0 0 0 1px rgba(227,163,59,.35);opacity:0;transition:transform .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.top nav .ind.on{opacity:1}
 
 /* hero */
 /* studio banner across the top, fading into the water */
@@ -172,12 +176,13 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   .trio{grid-template-columns:1fr;gap:36px}
   .track{grid-template-columns:110px minmax(0,1fr);gap:20px}
   .wavebox{height:64px}
-  .top nav{gap:14px;font-size:14px}
+  .top nav{gap:0;overflow-x:auto;max-width:100%}
+  .top nav a{padding:8px 10px;font-size:11px;letter-spacing:.1em}
   body{font-size:16px}
   .bar .in{grid-template-columns:minmax(0,1fr) auto;gap:10px}
   .prog{grid-column:1/-1;order:3}
 }
-@media (max-width:520px){.top{flex-direction:column;align-items:flex-start;gap:10px}}
+@media (max-width:520px){.top{flex-direction:column;align-items:flex-start;gap:8px;top:8px}}
 </style>
 </head>
 <body>
@@ -187,8 +192,8 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 <div class="surface" aria-hidden="true"><div class="lit a"></div><div class="lit b"></div><div class="rays"></div></div>
 <div class="wrap">
 <header class="top">
-  <a class="me" href="#">Abhinav K Jayan</a>
-  <nav aria-label="Sections">
+  <a class="me glass" href="#"><span class="dot" aria-hidden="true"></span>Abhinav K Jayan</a>
+  <nav class="glass" aria-label="Sections"><span class="ind" aria-hidden="true"></span>
     <a href="#film">Film</a>
     <a href="#research">Research</a>
     <a href="#music">Music</a>
@@ -723,6 +728,25 @@ function frame(){
 }
 requestAnimationFrame(frame);
 addEventListener('resize', () => { if (bar.classList.contains('on')) document.documentElement.style.setProperty('--bar-h', bar.offsetHeight + 'px'); });
+/* header: slide the amber indicator to the section in view */
+(function(){
+  const nav = document.querySelector('.top nav'), ind = nav.querySelector('.ind');
+  const links = [...nav.querySelectorAll('a[href^="#"]')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  let current = null;
+  function moveTo(a){
+    links.forEach(l => l.classList.toggle('on', l === a));
+    if (!a){ ind.classList.remove('on'); return; }
+    ind.style.width = a.offsetWidth + 'px'; ind.style.transform = `translateX(${a.offsetLeft}px)`; ind.classList.add('on');
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) current = e.target.id; });
+    const vis = [...map.keys()].map(id => document.getElementById(id)).filter(el => { const r = el.getBoundingClientRect(); return r.top < innerHeight*.45 && r.bottom > innerHeight*.45; });
+    moveTo(vis.length ? map.get(vis[0].id) : null);
+  }, { rootMargin: '-45% 0px -54% 0px' });
+  map.forEach((a, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+  addEventListener('resize', () => moveTo(nav.querySelector('a.on')));
+})();
 </script>
 </body>
 </html>
