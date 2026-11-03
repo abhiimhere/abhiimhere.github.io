@@ -404,13 +404,13 @@ function ensureAudioGraph(){
 (function(){
   const c = document.getElementById('field'), x = c.getContext('2d');
   const LIFE = 3.2;                       // seconds until a ripple has fully settled
-  let w, h, d, t = 0, lastY = scrollY, energy = .5, ripples = [], mouse = null, lastSpawn = 0, lastScrollSpawn = 0;
-  function size(){ d = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight; c.width = w*d; c.height = h*d; x.setTransform(d,0,0,d,0,0); if (reduce) draw(); }
+  let w, h, d, t = 0, lastY = scrollY, energy = 0, dirty = true, ripples = [], mouse = null, lastSpawn = 0, lastScrollSpawn = 0;
+  function size(){ d = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight; c.width = w*d; c.height = h*d; x.setTransform(d,0,0,d,0,0); dirty = true; if (reduce) draw(); }
   addEventListener('resize', size); size();
   function spawn(px, py, a){ ripples.push({ x:px, y:py, t0:performance.now(), a }); if (ripples.length > 16) ripples.shift(); }
   addEventListener('scroll', () => {
     const dy = scrollY - lastY; lastY = scrollY;
-    energy = Math.min(2.4, energy + Math.abs(dy) * .006);
+    energy = Math.min(2.4, energy + Math.abs(dy) * .006); dirty = true;
     const now = performance.now();
     if (!reduce && Math.abs(dy) > 2 && now - lastScrollSpawn > 120){
       lastScrollSpawn = now;
@@ -424,7 +424,7 @@ function ensureAudioGraph(){
     const now = performance.now();
     const moved = mouse ? Math.hypot(e.clientX-mouse.x, e.clientY-mouse.y) : 99;
     mouse = { x:e.clientX, y:e.clientY };
-    if (moved > 36 && now - lastSpawn > 150){ lastSpawn = now; spawn(e.clientX, e.clientY, .9); }
+    if (moved > 36 && now - lastSpawn > 150){ lastSpawn = now; spawn(e.clientX, e.clientY, 1.2); }
   }, { passive:true });
   addEventListener('pointerdown', e => { if (!reduce) spawn(e.clientX, e.clientY, 2.2); }, { passive:true });
 
@@ -435,7 +435,7 @@ function ensureAudioGraph(){
     const Sx = w/2, Sy = -Math.max(h*.9, w*.55);           // virtual source above the page
     const rMin = -Sy - 10, rMax = Math.hypot(Math.max(Sx, w-Sx), h - Sy) + 20;
     const gap = Math.max(28, h/28), step = 7;
-    const drift = (t*14 + scrollY*.3) % gap;                 // fronts travel outward, faster as you scroll
+    const drift = (scrollY*.3) % gap;                        // fronts only travel when the page moves
     const e = energy + level.v * 2.2;
     for (let r = rMin - gap + drift, i = 0; r < rMax; r += gap, i++){
       x.beginPath(); let started = false, peak = 0;
@@ -450,13 +450,11 @@ function ensureAudioGraph(){
         // ripples push points outward from each ripple centre, in every direction
         let mag = Math.abs(n);
         for (const rp of ripples){
-          const age = (now - rp.t0)/1000, dx = X - rp.x, dy = Y - rp.y, dist = Math.hypot(dx, dy) || 1, front = age*280;
-          if (dist > front + 30) continue;
-          const settle = Math.exp(-age*1.3) * (1 - age/LIFE);           // dies away smoothly by LIFE
-          const reach = Math.exp(-dist/520);
-          const lead = Math.min(1, (front + 30 - dist)/70);
-          const amp = Math.sin(dist*.05 - age*9) * 15 * rp.a * settle * reach * lead;
-          X += dx/dist*amp; Y += dy/dist*amp; mag += Math.abs(amp);
+          const age = (now - rp.t0)/1000, dist = Math.hypot(X - rp.x, Y - rp.y), front = age*260;
+          if (dist > front + 40) continue;
+          const settle = Math.exp(-age*1.7) * (1 - age/LIFE);           // dies away smoothly by LIFE
+          const amp = Math.sin(dist*.045 - age*9) * 16 * rp.a * settle * Math.exp(-dist/260) * Math.min(1, (front + 40 - dist)/80);
+          X += sx*amp; Y += cy*amp; mag += Math.abs(amp);
         }
         peak = Math.max(peak, mag);
         started ? x.lineTo(X, Y) : (x.moveTo(X, Y), started = true);
@@ -465,10 +463,14 @@ function ensureAudioGraph(){
       x.strokeStyle = `rgba(${Math.round(154+73*glow)},${Math.round(161+2*glow)},${Math.round(169-110*glow)},${.07 + glow*.24})`;
       x.lineWidth = 1; x.stroke();
     }
-    energy = energy*.96 + .02;
-    t += .016;
+    energy *= .94; if (energy < .003) energy = 0;
+    t += .016 * Math.min(1, e);           // the fronts only breathe while something is moving
   }
-  function loop(){ draw(); requestAnimationFrame(loop); }
+  function loop(){
+    const active = energy > 0 || ripples.length || level.v > .003;
+    if (active || dirty){ draw(); dirty = active; }
+    requestAnimationFrame(loop);
+  }
   reduce ? draw() : loop();
 })();
 
@@ -628,7 +630,7 @@ function frame(){
     analyser.getByteFrequencyData(fbuf); bins = fbuf;
     let s = 0; for (let k=0;k<64;k++) s += fbuf[k]; level.v = level.v*.7 + (s/64/255)*.3;
   } else if (playing){ level.v = level.v*.9 + (.25 + .15*Math.sin(performance.now()/300))*.1; }
-  else level.v *= .92;
+  else { level.v *= .92; if (level.v < .003) level.v = 0; }
 
   const [ct, dur] = progressOf(it), prog = dur ? ct/dur : 0;
   if (bar.classList.contains('on')){
