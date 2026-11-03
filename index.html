@@ -414,7 +414,7 @@ function ensureAudioGraph(){
 (function(){
   const c = document.getElementById('field'), x = c.getContext('2d');
   const LIFE = 3;                                   // seconds for a pointer ripple to settle
-  let w, h, d, t = 0, lastY = scrollY, swell = 0, phase = 0, ripples = [], last = null, lastT = 0, dirty = true;
+  let w, h, d, t = 0, lastY = scrollY, swell = 0, phase = 0, vel = 0, dir = 1, ripples = [], last = null, lastT = 0, dirty = true;
   function size(){ d = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight; c.width = w*d; c.height = h*d; x.setTransform(d,0,0,d,0,0); dirty = true; if (reduce) draw(); }
   addEventListener('resize', size); size();
 
@@ -422,7 +422,9 @@ function ensureAudioGraph(){
   addEventListener('scroll', () => {
     const dy = scrollY - lastY; lastY = scrollY;
     swell = Math.min(26, swell + Math.abs(dy) * .22);
-    phase += dy * .018; dirty = true;
+    vel += dy * .0045; vel = Math.max(-.6, Math.min(.6, vel));   // momentum, so the swell keeps travelling
+    if (dy) dir = Math.sign(dy);
+    dirty = true;
   }, { passive:true });
 
   // pointer motion: ripples follow the cursor wherever it moves
@@ -477,7 +479,10 @@ function ensureAudioGraph(){
       x.strokeStyle = `rgba(${Math.round(120+90*glow)},${Math.round(175+60*glow)},${Math.round(230+25*glow)},${(.08 + glow*.3)*depthFade})`;
       x.lineWidth = 1; x.stroke();
     }
-    swell *= .93; if (swell < .05) swell = 0;
+    // ease out like the pointer ripples: the swell keeps rolling and dies away over about 3 seconds
+    phase += vel + dir * .035 * Math.min(1, swell/8);
+    vel *= .94;
+    swell *= .972; if (swell < .04) { swell = 0; vel = 0; }
     t += .016;
   }
   function loop(){
