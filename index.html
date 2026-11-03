@@ -466,7 +466,7 @@ function ensureAudioGraph(){
         let mag = Math.abs(n);
         for (const rp of ripples){
           const age = (now - rp.t0)/1000, dist = Math.hypot(X - rp.x, Y - rp.y), front = age*260;
-          if (dist > front + 40 || dist > 640) continue;
+          if (dist > front + 40 || dist > (rp.ghost ? 380 : 640)) continue;
           const settle = Math.exp(-age*1.6) * (1 - age/LIFE);
           const amp = Math.sin(dist*.045 - age*9) * 16 * rp.a * settle * Math.exp(-dist/240) * Math.min(1, (front + 40 - dist)/80);
           n += amp; mag += Math.abs(amp);
@@ -487,7 +487,20 @@ function ensureAudioGraph(){
     swell *= .975; if (swell < .03) { swell = 0; vel = 0; }
     t += .016;
   }
+  // phantom pointer: drifts slowly along long, curving paths, leaving very light ripples
+  const ph = { last:0, x:null, y:null, seed: Math.random()*100 };
+  function phantom(now){
+    const s = now/1000 + ph.seed;
+    const px = w*(.5 + .42*Math.sin(s*.071)*Math.cos(s*.023 + 1.1) + .06*Math.sin(s*.19));
+    const py = h*(.5 + .40*Math.sin(s*.053 + 2.3)*Math.cos(s*.031) + .05*Math.cos(s*.17));
+    if (now - ph.last > 260 && (ph.x === null || Math.hypot(px-ph.x, py-ph.y) > 4)){
+      ph.last = now; ph.x = px; ph.y = py;
+      ripples.push({ x:px, y:py, t0:now, a:.42, ghost:true });
+      if (ripples.length > 30) ripples.shift();
+    }
+  }
   function loop(){
+    if (!document.hidden) phantom(performance.now());
     const active = swell > 0 || smoothY !== scrollY || ripples.length || level.v > .003;
     if (active || dirty){ draw(); dirty = active; }
     requestAnimationFrame(loop);
