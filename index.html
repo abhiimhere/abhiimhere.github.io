@@ -502,20 +502,20 @@ function ensureAudioGraph(){
     swell *= .975; if (swell < .03) { swell = 0; vel = 0; }
     t += .016;
   }
-  /* breathing loop: waves alternate down and up. Each takes 10s to travel the page
-     (ease in and out), and the next one starts at the 7th second of the current one,
-     so the last 3 seconds of every wave crash into the start of the opposing wave. */
+  /* breathing loop: waves alternate down and up. Each takes 20s to travel the page
+     (ease in and out), and the next one starts at the 14th second of the current one,
+     so the last 6 seconds of every wave crash into the start of the opposing wave. */
   const ease = u => u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3)/2;
   function breath(T, rMin, rMax){
-    const GAP = 7, TRAVEL = 10, LIFE_B = 12, span = rMax - rMin, out = [];
+    const GAP = 14, TRAVEL = 20, LIFE_B = 23, span = rMax - rMin, out = [];
     const n = Math.floor(T / GAP);
     for (const j of [n-1, n]){
       if (j < 0) continue;
       const age = T - j*GAP; if (age > LIFE_B) continue;
       const down = j % 2 === 0, u = Math.min(1, age/TRAVEL), pos = ease(u);
-      const rise = Math.min(1, age/1.5), fade = age < TRAVEL ? 1 : Math.exp(-(age - TRAVEL)*1.6);
+      const rise = Math.min(1, age/3), fade = age < TRAVEL ? 1 : Math.exp(-(age - TRAVEL)*.8);
       out.push({ c: down ? rMin + span*pos : rMax - span*pos, wd: 70 + 50*Math.sin(Math.PI*u),
-                 amp: 9 * rise * fade * (0.75 + 0.25*Math.sin(Math.PI*u)), osc: age*1.6*(down ? 1 : -1) });
+                 amp: 9 * rise * fade * (0.75 + 0.25*Math.sin(Math.PI*u)), osc: age*.8*(down ? 1 : -1) });
     }
     return out;
   }
