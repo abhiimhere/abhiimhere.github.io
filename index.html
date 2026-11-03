@@ -414,7 +414,7 @@ function ensureAudioGraph(){
 (function(){
   const c = document.getElementById('field'), x = c.getContext('2d');
   const LIFE = 3;                                   // seconds for a pointer ripple to settle
-  let w, h, d, t = 0, lastY = scrollY, swell = 0, phase = 0, vel = 0, dir = 1, ripples = [], last = null, lastT = 0, dirty = true;
+  let w, h, d, t = 0, lastY = scrollY, smoothY = scrollY, swell = 0, phase = 0, vel = 0, dir = 1, ripples = [], last = null, lastT = 0, dirty = true;
   function size(){ d = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight; c.width = w*d; c.height = h*d; x.setTransform(d,0,0,d,0,0); dirty = true; if (reduce) draw(); }
   addEventListener('resize', size); size();
 
@@ -449,7 +449,7 @@ function ensureAudioGraph(){
     const Sx = w/2, Sy = -Math.max(h*.9, w*.55);
     const rMin = -Sy - 10, rMax = Math.hypot(Math.max(Sx, w-Sx), h - Sy) + 20;
     const gap = Math.max(28, h/28), step = 7;
-    const drift = (scrollY*.3) % gap;
+    const drift = ((smoothY*.3) % gap + gap) % gap;   // fronts glide after the page with inertia
     const music = level.v * 9;
     for (let r = rMin - gap + drift, i = 0; r < rMax; r += gap, i++){
       x.beginPath(); let started = false, peak = 0;
@@ -479,14 +479,16 @@ function ensureAudioGraph(){
       x.strokeStyle = `rgba(${Math.round(120+90*glow)},${Math.round(175+60*glow)},${Math.round(230+25*glow)},${(.08 + glow*.3)*depthFade})`;
       x.lineWidth = 1; x.stroke();
     }
-    // slow, subtle swell that keeps rolling and dies away over about 6 seconds
-    phase += vel + dir * .012 * Math.min(1, swell/4);
+    // slow, subtle swell that keeps rolling and dies away over about 3 seconds
+    smoothY += (scrollY - smoothY) * .03;            // inertia: catches up over about 3 seconds
+    if (Math.abs(scrollY - smoothY) < .3) smoothY = scrollY;
+    phase += vel + dir * .02 * Math.min(1, swell/3);
     vel *= .975;
-    swell *= .986; if (swell < .03) { swell = 0; vel = 0; }
+    swell *= .975; if (swell < .03) { swell = 0; vel = 0; }
     t += .016;
   }
   function loop(){
-    const active = swell > 0 || ripples.length || level.v > .003;
+    const active = swell > 0 || smoothY !== scrollY || ripples.length || level.v > .003;
     if (active || dirty){ draw(); dirty = active; }
     requestAnimationFrame(loop);
   }
