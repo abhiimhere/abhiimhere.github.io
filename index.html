@@ -458,7 +458,14 @@ function ensureAudioGraph(){
     const gap = Math.max(28, h/28), step = 7;
     const drift = ((smoothY*.3) % gap + gap) % gap;   // fronts glide after the page with inertia
     const music = level.v * 9;
+    const packets = reduce ? [] : breath(now/1000, rMin, rMax);
     for (let r = rMin - gap + drift, i = 0; r < rMax; r += gap, i++){
+      // breathing: each packet bends the fronts near its travelling centre
+      let bR = 0;
+      for (const pk of packets){
+        const q = (r - pk.c) / pk.wd;
+        if (q > -3 && q < 3) bR += pk.amp * Math.exp(-q*q) * Math.sin(q*2.6 - pk.osc);
+      }
       x.beginPath(); let started = false, peak = 0;
       const depthFade = 1 - Math.min(1, (r - rMin)/(rMax - rMin))*.35;
       for (let px = -step; px <= w + step; px += step){
@@ -470,10 +477,11 @@ function ensureAudioGraph(){
         let n = swell * Math.sin(th*9 - phase + i*.45) * (.65 + .35*Math.sin(th*3 + phase*.4 + i*.2));
         // music breathing
         if (music) n += music * Math.sin(th*22 + t*1.4 + i*.5) * Math.sin(th*6 - t*.4);
+        if (bR) n += bR * (.75 + .25*Math.sin(th*7 + i*.4));
         let mag = Math.abs(n);
         for (const rp of ripples){
           const age = (now - rp.t0)/1000, dist = Math.hypot(X - rp.x, Y - rp.y), front = age*260;
-          if (dist > front + 40 || dist > (rp.ghost ? 520 : 640)) continue;
+          if (dist > front + 40 || dist > 640) continue;
           const settle = Math.exp(-age*1.6) * (1 - age/LIFE);
           const amp = Math.sin(dist*.045 - age*9) * 16 * rp.a * settle * Math.exp(-dist/240) * Math.min(1, (front + 40 - dist)/80);
           n += amp; mag += Math.abs(amp);
@@ -494,21 +502,26 @@ function ensureAudioGraph(){
     swell *= .975; if (swell < .03) { swell = 0; vel = 0; }
     t += .016;
   }
-  // phantom pointer: drifts slowly along long, curving paths, leaving very light ripples
-  const ph = { last:0, x:null, y:null, seed: Math.random()*100 };
-  function phantom(now){
-    const s = now/1000 + ph.seed;
-    const px = w*(.5 + .42*Math.sin(s*.071)*Math.cos(s*.023 + 1.1) + .06*Math.sin(s*.19));
-    const py = h*(.5 + .40*Math.sin(s*.053 + 2.3)*Math.cos(s*.031) + .05*Math.cos(s*.17));
-    if (now - ph.last > 200 && (ph.x === null || Math.hypot(px-ph.x, py-ph.y) > 4)){
-      ph.last = now; ph.x = px; ph.y = py;
-      ripples.push({ x:px, y:py, t0:now, a:.75, ghost:true });
-      if (ripples.length > 30) ripples.shift();
-    }
+  /* breathing loop, 7 seconds:
+     0s  a wave rolls down the page (4s ease in and out), then keeps settling
+     3s  while it settles, an opposing wave rolls up (4s ease in and out)
+         and crashes into it, and the next downward wave meets the upward one at the top */
+  const ease = u => u < .5 ? 4*u*u*u : 1 - Math.pow(-2*u + 2, 3)/2;
+  function breath(T, rMin, rMax){
+    const P = 7, span = rMax - rMin, out = [];
+    const add = (age, down) => {
+      if (age < 0 || age > 6.5) return;
+      const u = Math.min(1, age/4), pos = ease(u);
+      const rise = Math.min(1, age/1.2), fade = age < 4 ? 1 : Math.exp(-(age - 4)*1.3);
+      out.push({ c: down ? rMin + span*pos : rMax - span*pos, wd: 70 + 50*Math.sin(Math.PI*u),
+                 amp: 9 * rise * fade * (0.75 + 0.25*Math.sin(Math.PI*u)), osc: age*2.2*(down ? 1 : -1) });
+    };
+    const k = Math.floor(T / P);
+    for (const j of [k-1, k]){ add(T - j*P, true); add(T - (j*P + 3), false); }
+    return out;
   }
   function loop(){
-    if (!document.hidden) phantom(performance.now());
-    const active = swell > 0 || smoothY !== scrollY || ripples.length || level.v > .003;
+    const active = true;   // the breathing loop keeps the water gently alive
     if (active || dirty){ draw(); dirty = active; }
     requestAnimationFrame(loop);
   }
