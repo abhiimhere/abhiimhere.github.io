@@ -14,11 +14,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --graphite:#1d2229;
-  --panel:#252b33;
-  --line:#39414b;
-  --paper:#ebe8e1;
-  --dim:#9aa1a9;
+  --graphite:#051327;
+  --panel:#0b2240;
+  --line:rgba(140,185,230,.17);
+  --paper:#e8eef4;
+  --dim:#93a9c0;
   --vu:#e3a33b;
   --measure:68ch;
   --bar-h:0px;
@@ -26,19 +26,26 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--graphite);color:var(--paper);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.55;font-feature-settings:"cv11","ss01";padding-bottom:var(--bar-h);transition:padding-bottom .3s}
+html{background:#020812}
+body{margin:0;background:linear-gradient(180deg,#0e3c70 0,#0a3060 60vh,#08254c 130vh,#061c3d 40%,#04132b 70%,#020a18 100%);color:var(--paper);font-family:Inter,system-ui,sans-serif;font-size:17px;line-height:1.55;font-feature-settings:"cv11","ss01";padding-bottom:var(--bar-h);transition:padding-bottom .3s}
 a{color:inherit;text-decoration-color:var(--vu);text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{color:var(--vu)}
 :focus-visible{outline:2px solid var(--vu);outline-offset:3px;border-radius:2px}
 #field{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
 .page{position:relative;z-index:1}
+.page>.wrap{position:relative;z-index:1}
+/* lit water surface at the top of the page, fading into the deep */
+.surface{position:absolute;top:0;left:0;right:0;height:min(125vh,1150px);pointer-events:none;z-index:0;background:url(img/surface.jpg) center top/cover no-repeat;mix-blend-mode:screen;opacity:.7;-webkit-mask-image:linear-gradient(#000 0,#000 25%,transparent 100%);mask-image:linear-gradient(#000 0,#000 25%,transparent 100%)}
+.surface::after{content:"";position:absolute;inset:0;background:linear-gradient(104deg,transparent 46%,rgba(160,210,255,.07) 52%,transparent 58%),linear-gradient(110deg,transparent 60%,rgba(160,210,255,.05) 65%,transparent 71%),linear-gradient(98deg,transparent 28%,rgba(160,210,255,.04) 33%,transparent 39%)}
 .wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
 
 /* header */
 .top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font-size:15px}
 .top .me{font-weight:500;text-decoration:none}
 .top nav{display:flex;gap:22px;flex-wrap:wrap}
-.top nav a{text-decoration:none;color:var(--dim)}
+.top nav a{text-decoration:none;color:var(--paper);opacity:.85;text-shadow:0 1px 10px rgba(2,12,30,.85)}
+.top nav a:hover{opacity:1}
+.top .me{text-shadow:0 1px 10px rgba(2,12,30,.85)}
 .top nav a:hover{color:var(--paper)}
 
 /* hero */
@@ -80,7 +87,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .media img.bg{object-fit:cover;filter:blur(28px) brightness(.45) saturate(1.1);transform:scale(1.25)}
 .media img.fg{object-fit:contain}
 .media .go{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;cursor:pointer;color:var(--paper);font:inherit}
-.go span{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:500;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(29,34,41,.82)}
+.go span{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:500;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(5,19,39,.8)}
 .go span::before{content:"";width:0;height:0;border-left:11px solid var(--vu);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:4px}
 .go:hover span{background:var(--graphite)}
 .mount{position:absolute;inset:0;background:#000}
@@ -130,7 +137,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
 /* master playbar */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(29,34,41,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(4,16,34,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease}
 .bar.on{transform:none}
 .bar .in{max-width:1320px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr);gap:24px;align-items:center}
 .now{display:flex;gap:12px;align-items:center;min-width:0}
@@ -163,6 +170,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 <body>
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="page">
+<div class="surface" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
   <a class="me" href="#">Abhinav K Jayan</a>
@@ -384,7 +392,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
 <script>
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const AMBER = '#e3a33b', DIM = '#5b6470';
+const AMBER = '#e3a33b', DIM = '#36557a';
 
 /* ---------- shared audio energy (drives background + discs) ---------- */
 const level = { v: 0 };            // 0..1 loudness of whatever is playing
@@ -399,75 +407,81 @@ function ensureAudioGraph(){
 
 /* ---------- 1. sound field background ----------
    Curved wavefronts radiate from a source above the page, like a spherical sound front.
-   Scrolling and cursor movement throw out circular ripples that spread in every direction
-   and settle within a few seconds. */
+   Two separate motions:
+   - the pointer throws out ripples wherever it moves, local to the cursor
+   - scrolling makes every front undulate together, travelling with the scroll
+   Both settle back to perfectly still water within a few seconds. */
 (function(){
   const c = document.getElementById('field'), x = c.getContext('2d');
-  const LIFE = 3.2;                       // seconds until a ripple has fully settled
-  let w, h, d, t = 0, lastY = scrollY, energy = 0, dirty = true, ripples = [], mouse = null, lastSpawn = 0, lastScrollSpawn = 0;
+  const LIFE = 3;                                   // seconds for a pointer ripple to settle
+  let w, h, d, t = 0, lastY = scrollY, swell = 0, phase = 0, ripples = [], last = null, lastT = 0, dirty = true;
   function size(){ d = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight; c.width = w*d; c.height = h*d; x.setTransform(d,0,0,d,0,0); dirty = true; if (reduce) draw(); }
   addEventListener('resize', size); size();
-  function spawn(px, py, a){ ripples.push({ x:px, y:py, t0:performance.now(), a }); if (ripples.length > 16) ripples.shift(); }
+
+  // whole-page motion: every front swells and the swell travels with the scroll
   addEventListener('scroll', () => {
     const dy = scrollY - lastY; lastY = scrollY;
-    energy = Math.min(2.4, energy + Math.abs(dy) * .006); dirty = true;
-    const now = performance.now();
-    if (!reduce && Math.abs(dy) > 2 && now - lastScrollSpawn > 120){
-      lastScrollSpawn = now;
-      // ripple from the cursor, or from the edge the page is moving towards
-      const px = mouse ? mouse.x : w/2, py = mouse ? mouse.y : (dy > 0 ? h*.85 : h*.15);
-      spawn(px, py, Math.min(1.8, .4 + Math.abs(dy)*.02));
-    }
+    swell = Math.min(26, swell + Math.abs(dy) * .22);
+    phase += dy * .018; dirty = true;
   }, { passive:true });
+
+  // pointer motion: ripples follow the cursor wherever it moves
   addEventListener('pointermove', e => {
-    if (reduce || e.pointerType === 'touch') return;
+    if (reduce) return;
     const now = performance.now();
-    const moved = mouse ? Math.hypot(e.clientX-mouse.x, e.clientY-mouse.y) : 99;
-    mouse = { x:e.clientX, y:e.clientY };
-    if (moved > 36 && now - lastSpawn > 150){ lastSpawn = now; spawn(e.clientX, e.clientY, 1.2); }
+    if (last){
+      const dist = Math.hypot(e.clientX - last.x, e.clientY - last.y), dt = Math.max(1, now - lastT);
+      if (dist < 6 || now - lastT < 45) return;
+      const speed = dist / dt;                     // px per ms
+      ripples.push({ x:e.clientX, y:e.clientY, t0:now, a: Math.min(1.7, .55 + speed*.9) });
+      if (ripples.length > 26) ripples.shift();
+    }
+    last = { x:e.clientX, y:e.clientY }; lastT = now;
   }, { passive:true });
-  addEventListener('pointerdown', e => { if (!reduce) spawn(e.clientX, e.clientY, 2.2); }, { passive:true });
+  addEventListener('pointerdown', e => { if (!reduce) ripples.push({ x:e.clientX, y:e.clientY, t0:performance.now(), a:2.4 }); }, { passive:true });
 
   function draw(){
     const now = performance.now();
     x.clearRect(0,0,w,h);
     ripples = ripples.filter(r => (now - r.t0)/1000 < LIFE);
-    const Sx = w/2, Sy = -Math.max(h*.9, w*.55);           // virtual source above the page
+    const Sx = w/2, Sy = -Math.max(h*.9, w*.55);
     const rMin = -Sy - 10, rMax = Math.hypot(Math.max(Sx, w-Sx), h - Sy) + 20;
     const gap = Math.max(28, h/28), step = 7;
-    const drift = (scrollY*.3) % gap;                        // fronts only travel when the page moves
-    const e = energy + level.v * 2.2;
+    const drift = (scrollY*.3) % gap;
+    const music = level.v * 9;
     for (let r = rMin - gap + drift, i = 0; r < rMax; r += gap, i++){
       x.beginPath(); let started = false, peak = 0;
+      const depthFade = 1 - Math.min(1, (r - rMin)/(rMax - rMin))*.35;
       for (let px = -step; px <= w + step; px += step){
         const sx = (px - Sx) / r; if (sx < -1 || sx > 1) { started = false; continue; }
         const th = Math.asin(sx), cy = Math.cos(th);
         let X = Sx + r*sx, Y = Sy + r*cy;
         if (Y < -40 || Y > h + 40) { started = false; continue; }
-        // breathing of the front itself (along its normal)
-        const n = Math.sin(th*22 + t*1.2 + i*.5) * Math.sin(th*6 - t*.35 + i*.2) * e * 5;
-        X += sx*n; Y += cy*n;
-        // ripples push points outward from each ripple centre, in every direction
+        // scroll swell: all fronts undulate together along their normal
+        let n = swell * Math.sin(th*16 - phase + i*.7) * (.6 + .4*Math.sin(th*5 + phase*.5 + i*.3));
+        // music breathing
+        if (music) n += music * Math.sin(th*22 + t*1.4 + i*.5) * Math.sin(th*6 - t*.4);
         let mag = Math.abs(n);
         for (const rp of ripples){
           const age = (now - rp.t0)/1000, dist = Math.hypot(X - rp.x, Y - rp.y), front = age*260;
-          if (dist > front + 40) continue;
-          const settle = Math.exp(-age*1.7) * (1 - age/LIFE);           // dies away smoothly by LIFE
-          const amp = Math.sin(dist*.045 - age*9) * 16 * rp.a * settle * Math.exp(-dist/260) * Math.min(1, (front + 40 - dist)/80);
-          X += sx*amp; Y += cy*amp; mag += Math.abs(amp);
+          if (dist > front + 40 || dist > 640) continue;
+          const settle = Math.exp(-age*1.6) * (1 - age/LIFE);
+          const amp = Math.sin(dist*.045 - age*9) * 16 * rp.a * settle * Math.exp(-dist/240) * Math.min(1, (front + 40 - dist)/80);
+          n += amp; mag += Math.abs(amp);
         }
+        X += sx*n; Y += cy*n;
         peak = Math.max(peak, mag);
         started ? x.lineTo(X, Y) : (x.moveTo(X, Y), started = true);
       }
       const glow = Math.min(1, peak/20);
-      x.strokeStyle = `rgba(${Math.round(154+73*glow)},${Math.round(161+2*glow)},${Math.round(169-110*glow)},${.07 + glow*.24})`;
+      x.strokeStyle = `rgba(${Math.round(120+90*glow)},${Math.round(175+60*glow)},${Math.round(230+25*glow)},${(.08 + glow*.3)*depthFade})`;
       x.lineWidth = 1; x.stroke();
     }
-    energy *= .94; if (energy < .003) energy = 0;
-    t += .016 * Math.min(1, e);           // the fronts only breathe while something is moving
+    swell *= .93; if (swell < .05) swell = 0;
+    t += .016;
   }
   function loop(){
-    const active = energy > 0 || ripples.length || level.v > .003;
+    const active = swell > 0 || ripples.length || level.v > .003;
     if (active || dirty){ draw(); dirty = active; }
     requestAnimationFrame(loop);
   }
@@ -650,7 +664,7 @@ function frame(){
       else if (me) v = .25 + .25*Math.abs(Math.sin(k*.5 + performance.now()/240));
       else v = .06 + dsc.it.peaks[k*2 % dsc.it.peaks.length]*.12;
       const len = 4 + v*(w*.13);
-      x.strokeStyle = me ? AMBER : 'rgba(154,161,169,.45)'; x.lineWidth = 2;
+      x.strokeStyle = me ? AMBER : 'rgba(150,190,230,.4)'; x.lineWidth = 2;
       x.beginPath(); x.moveTo(cx+Math.cos(ang)*R, cy+Math.sin(ang)*R); x.lineTo(cx+Math.cos(ang)*(R+len), cy+Math.sin(ang)*(R+len)); x.stroke();
     }
     dsc.it.el.querySelector('.disc img').style.transform = `rotate(${(dsc.it===it ? spin : 0)*57.3}deg)`;
