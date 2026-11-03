@@ -76,7 +76,8 @@ h2{font-weight:300;font-size:clamp(32px,4.4vw,48px);letter-spacing:-.025em;line-
 .media{position:relative;aspect-ratio:16/9;background:var(--panel);border-radius:6px;overflow:hidden}
 .media.audio{aspect-ratio:auto;height:150px}
 .media img,.media canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.media img{filter:saturate(.85) brightness(.82)}
+.media img.bg{object-fit:cover;filter:blur(28px) brightness(.45) saturate(1.1);transform:scale(1.25)}
+.media img.fg{object-fit:contain}
 .media button{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;cursor:pointer;color:var(--paper);font:inherit}
 .media button span{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:500;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(29,34,41,.82)}
 .media button span::before{content:"";width:0;height:0;border-left:11px solid var(--vu);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:4px}
@@ -175,7 +176,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   <p class="lede">Location recording, sound design, original scores and final mixes. Press play to watch here.</p>
 
   <div class="work">
-    <div class="media" data-src="https://drive.google.com/file/d/1hSFLAiWp2y5ewU26J92MflBVcvL-lrQx/preview" data-seed="whtwlb">
+    <div class="media" data-src="https://drive.google.com/file/d/1hSFLAiWp2y5ewU26J92MflBVcvL-lrQx/preview" data-thumb="img/whtwlb.jpg">
       <button><span>Watch the film</span></button>
     </div>
     <div>
@@ -188,7 +189,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 
   <div class="work">
-    <div class="media" data-src="https://www.youtube-nocookie.com/embed/oE9lMdIfF4c?autoplay=1" data-thumb="https://img.youtube.com/vi/oE9lMdIfF4c/hqdefault.jpg">
+    <div class="media" data-src="https://www.youtube-nocookie.com/embed/oE9lMdIfF4c?autoplay=1" data-thumb="img/story.jpg">
       <button><span>Watch the film</span></button>
     </div>
     <div>
@@ -201,7 +202,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 
   <div class="work">
-    <div class="media" data-src="https://www.youtube-nocookie.com/embed/HIIlfs60rp8?autoplay=1" data-thumb="https://img.youtube.com/vi/HIIlfs60rp8/hqdefault.jpg">
+    <div class="media" data-src="https://www.youtube-nocookie.com/embed/HIIlfs60rp8?autoplay=1" data-thumb="img/jackfruit.jpg">
       <button><span>Watch the film</span></button>
     </div>
     <div>
@@ -264,14 +265,14 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <p>Dubstep and techno hybrid built for the club. Producer and mix engineer, October 2026.</p>
     </div>
     <div>
-      <div class="media audio" data-src="https://drive.google.com/file/d/17mIyWVGpBO2G9VDWeBk5M0wGfdCLW3QV/preview" data-seed="demons are here">
+      <div class="media audio" data-src="https://drive.google.com/file/d/17mIyWVGpBO2G9VDWeBk5M0wGfdCLW3QV/preview" data-thumb="img/demons.jpg">
         <button><span>Play</span></button>
       </div>
       <h3>Demons Are Here</h3>
       <p>A 4:30 experimental piece across five genres, co-created with Olivia Soenarto and mixed in Dolby Atmos. IADT, December 2025.</p>
     </div>
     <div>
-      <div class="media audio" data-src="https://www.youtube-nocookie.com/embed/x1VSfsF7cyo?autoplay=1" data-seed="psyghori">
+      <div class="media audio" data-src="https://www.youtube-nocookie.com/embed/x1VSfsF7cyo?autoplay=1" data-thumb="img/psyghori.jpg">
         <button><span>Play</span></button>
       </div>
       <h3>Psyghori</h3>
@@ -340,7 +341,7 @@ function drawPoster(c,seed){
 }
 document.querySelectorAll('.media').forEach(m=>{
   const poster=()=>{const c=document.createElement('canvas');c.setAttribute('aria-hidden','true');m.prepend(c);requestAnimationFrame(()=>drawPoster(c,m.dataset.seed||m.dataset.src))};
-  if(m.dataset.thumb){const img=new Image();img.alt='';img.loading='lazy';img.onerror=()=>{img.remove();poster()};img.src=m.dataset.thumb;m.prepend(img)}
+  if(m.dataset.thumb){const fg=new Image(),bg=new Image();fg.alt='';bg.alt='';fg.className='fg';bg.className='bg';fg.loading=bg.loading='lazy';fg.onerror=()=>{fg.remove();bg.remove();poster()};fg.src=bg.src=m.dataset.thumb;m.prepend(bg,fg)}
   else poster();
   const b=m.querySelector('button'),t=m.closest('.work,div')?.querySelector('h3')?.textContent||'media';
   b.setAttribute('aria-label',b.textContent.trim()+': '+t);
