@@ -48,21 +48,22 @@ a:hover{color:var(--vu)}
 
 /* header */
 .top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font-size:15px}
-.top .me{font-weight:500;text-decoration:none}
+.top .me{font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.12em;font-size:13px}
 .top nav{display:flex;gap:22px;flex-wrap:wrap}
-.top nav a{text-decoration:none;color:var(--paper);opacity:.85;text-shadow:0 1px 10px rgba(2,12,30,.85)}
+.top nav a{text-decoration:none;color:var(--paper);opacity:.85;text-transform:uppercase;letter-spacing:.14em;font-size:12.5px;font-weight:500;text-shadow:0 1px 10px rgba(2,12,30,.85)}
 .top nav a:hover{opacity:1}
 .top .me{text-shadow:0 1px 10px rgba(2,12,30,.85)}
 .top nav a:hover{color:var(--paper)}
 
 /* hero */
 .hero{padding:clamp(56px,10vh,120px) 0 64px;border-bottom:1px solid var(--line);min-height:min(78vh,760px);display:flex;flex-direction:column;justify-content:flex-end}
-.hero h1{margin:0;font-weight:200;font-size:clamp(60px,12.5vw,190px);line-height:.9;letter-spacing:-.05em}
+.hero h1{margin:0;font-weight:200;font-size:clamp(54px,11.5vw,176px);line-height:.92;letter-spacing:-.035em;text-transform:uppercase}
+.hero .titles{font-weight:500}
 .hero .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;margin-top:36px;align-items:end}
 .hero .what{margin:0;font-size:clamp(20px,2.3vw,26px);font-weight:400;max-width:28ch;line-height:1.3}
 .hero .bio{margin:0;max-width:var(--measure);color:var(--dim)}
 .actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}
-.btn{display:inline-block;padding:11px 18px;border:1px solid var(--paper);border-radius:999px;text-decoration:none;font-size:15px;font-weight:500;background:transparent;color:inherit;cursor:pointer;font-family:inherit}
+.btn{display:inline-block;padding:12px 20px;border:1px solid var(--paper);border-radius:999px;text-decoration:none;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;background:transparent;color:inherit;cursor:pointer;font-family:inherit}
 .btn.solid{background:var(--paper);color:var(--graphite)}
 .btn.solid:hover{background:var(--vu);border-color:var(--vu);color:var(--graphite)}
 .btn:hover{border-color:var(--vu)}
@@ -84,7 +85,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .work{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:44px;padding:36px 0;border-top:1px solid var(--line);align-items:start}
 .work:last-of-type{border-bottom:1px solid var(--line)}
 .work h3{font-size:26px;font-weight:500;letter-spacing:-.01em;margin:0 0 4px;line-height:1.2}
-.role{color:var(--vu);font-size:15px;margin:0 0 4px}
+.role{color:var(--vu);font-size:14px;margin:0 0 4px;font-weight:500;letter-spacing:.01em}
 .when{color:var(--dim);font-size:15px;margin:0 0 14px}
 .work p.d{margin:0 0 10px;max-width:52ch}
 
@@ -94,7 +95,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .media img.bg{object-fit:cover;filter:blur(28px) brightness(.45) saturate(1.1);transform:scale(1.25)}
 .media img.fg{object-fit:contain}
 .media .go{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;cursor:pointer;color:var(--paper);font:inherit}
-.go span{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:500;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(5,19,39,.8)}
+.go span{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:9px 14px 9px 10px;border-radius:999px;background:rgba(5,19,39,.8)}
 .go span::before{content:"";width:0;height:0;border-left:11px solid var(--vu);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:4px}
 .go:hover span{background:var(--graphite)}
 .mount{position:absolute;inset:0;background:#000}
@@ -138,7 +139,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 
 /* contact */
 .contact{padding:96px 0 40px;border-top:1px solid var(--line);margin-top:56px}
-.contact h2{font-size:clamp(44px,8vw,110px);font-weight:200;letter-spacing:-.045em}
+.contact h2{font-size:clamp(40px,7.4vw,100px);font-weight:200;letter-spacing:-.03em;text-transform:uppercase;line-height:.95}
 .contact .mail{font-size:clamp(20px,2.6vw,28px);font-weight:400}
 .links{display:flex;gap:24px;flex-wrap:wrap;margin-top:22px;color:var(--dim)}
 footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
@@ -193,9 +194,9 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 <section class="hero" aria-label="Introduction">
   <h1>Abhinav<br>K Jayan</h1>
   <div class="row">
-    <p class="what">Sound designer, Dolby Atmos mixer and composer for film, games and installation.</p>
+    <p class="what"><span class="titles">Sound Designer, Immersive Mixer and Composer</span> for film, installation and games.</p>
     <div>
-      <p class="bio">Trained at FTII and completing the Erasmus Mundus Joint Masters in Sound (ReSound) across Dublin, Lisbon and Vilnius. I record, design, score and mix from set to final deliverable, with credits on festival-winning films and a practice built where science, philosophy and sound meet.</p>
+      <p class="bio">FTII-trained, now completing the Erasmus Mundus Joint Masters in Sound (ReSound) across Dublin, Lisbon and Vilnius. Dolby Atmos certified, with credits on festival-winning films and a creative practice that explores where science, philosophy and sound meet.</p>
       <div class="actions">
         <button class="btn solid" id="playall">Play the showreel</button>
         <a class="btn" href="Abhinav_K_Jayan_CV.pdf" target="_blank" rel="noopener">Download CV</a>
@@ -205,7 +206,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section aria-labelledby="recog-h">
-  <h2 id="recog-h">Awards and recognition</h2>
+  <h2 id="recog-h">Recognition</h2>
   <div class="recog">
     <div>
       <h3>FilmEU Imagination Challenge, 2026</h3>
@@ -226,16 +227,16 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section id="film" aria-labelledby="film-h">
-  <h2 id="film-h">Selected film work</h2>
-  <p class="lede">Production sound, sound design, original score and final mix, delivered to festival and broadcast standard. Press play and the player takes you through every piece.</p>
+  <h2 id="film-h">Film Sound</h2>
+  <p class="lede">Location recording, sound design, original scores and final mixes. Press play and the bar at the bottom takes you through every piece in turn.</p>
 
   <div class="work">
-    <div class="media playable" data-kind="yt" data-yt="1jeOyX6d0Lo" data-thumb="img/whtwlb.jpg" data-title="We Heard the World Looks Beautiful" data-sub="Composer, additional sound designer, mix engineer">
+    <div class="media playable" data-kind="yt" data-yt="1jeOyX6d0Lo" data-thumb="img/whtwlb.jpg" data-title="We Heard the World Looks Beautiful" data-sub="Composer, Additional Sound Designer, Mix Engineer">
       <button class="go"><span>Watch the film</span></button>
     </div>
     <div>
       <h3>We Heard the World Looks Beautiful</h3>
-      <p class="role">Composer, additional sound designer, mix engineer</p>
+      <p class="role">Composer, Additional Sound Designer, Mix Engineer</p>
       <p class="when">FTII short fiction, April 2025</p>
       <p class="d">Scored with the household objects of the film's own world, so each instrument carries symbolic weight in a story about patriarchy.</p>
       <p class="d">Designed the suspense and horror sequences and delivered the final 5.1 mix with full deliverable QC.</p>
@@ -243,12 +244,12 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 
   <div class="work">
-    <div class="media playable" data-kind="yt" data-yt="oE9lMdIfF4c" data-thumb="img/story.jpg" data-title="A Story and A Song" data-sub="Sound recordist, designer, composer">
+    <div class="media playable" data-kind="yt" data-yt="oE9lMdIfF4c" data-thumb="img/story.jpg" data-title="A Story and A Song" data-sub="Sound Recordist, Designer, Composer">
       <button class="go"><span>Watch the film</span></button>
     </div>
     <div>
       <h3>A Story and A Song</h3>
-      <p class="role">Sound recordist, designer, composer</p>
+      <p class="role">Sound Recordist, Designer, Composer</p>
       <p class="when">FTII short fiction, June 2025</p>
       <p class="d">Full sync-sound setup with a Sound Devices 888, Shure ADX wireless and Sennheiser MKH 8000 series mics.</p>
       <p class="d">Contrasting soundscapes for two merging realities, and an organic folk score rooted in rural Maharashtra.</p>
@@ -256,24 +257,24 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 
   <div class="work">
-    <div class="media playable" data-kind="yt" data-yt="HIIlfs60rp8" data-thumb="img/jackfruit.jpg" data-title="Under the Jackfruit Tree" data-sub="Sound recordist, designer, composer">
+    <div class="media playable" data-kind="yt" data-yt="HIIlfs60rp8" data-thumb="img/jackfruit.jpg" data-title="Under the Jackfruit Tree" data-sub="Sound Recordist, Designer, Composer">
       <button class="go"><span>Watch the film</span></button>
     </div>
     <div>
       <h3>Under the Jackfruit Tree</h3>
-      <p class="role">Sound recordist, designer, composer</p>
+      <p class="role">Sound Recordist, Designer, Composer</p>
       <p class="when">FTII documentary, February 2025</p>
       <p class="d">Recorded on location across eight multilingual stories and shaped seamless transitions between them.</p>
     </div>
   </div>
 
   <div class="work">
-    <div class="media playable" data-kind="yt" data-yt="I-aMWoq7IE0" data-thumb="img/mario.jpg" data-title="Super Mario Bros trailer, sound redesign study" data-sub="Sound designer, Foley, composer, mix engineer">
+    <div class="media playable" data-kind="yt" data-yt="I-aMWoq7IE0" data-thumb="img/mario.jpg" data-title="Super Mario Bros Trailer: Sound Redesign Study" data-sub="Sound Designer, Foley, Composer, Mix Engineer">
       <button class="go"><span>Watch the redesign</span></button>
     </div>
     <div>
-      <h3>Super Mario Bros trailer, sound redesign study</h3>
-      <p class="role">Sound designer, Foley, composer, mix engineer</p>
+      <h3>Super Mario Bros Trailer: Sound Redesign Study</h3>
+      <p class="role">Sound Designer, Foley, Composer, Mix Engineer</p>
       <p class="when">December 2025</p>
       <p class="d">The trailer's soundtrack replaced end to end with original Foley, sound design, score and final mix.</p>
     </div>
@@ -283,24 +284,24 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section id="research" aria-labelledby="research-h">
-  <h2 id="research-h">Research and installations</h2>
-  <p class="lede">Sound as the subject, not just the soundtrack. Research-led work that turns listening into an experience.</p>
+  <h2 id="research-h">Research and Installation</h2>
+  <p class="lede">Work where sound is the subject, not only the soundtrack.</p>
   <div class="trio">
     <article>
-      <h3>Master's thesis film</h3>
-      <p class="role">Director, sound designer, composer. In development, 2026 to 2027</p>
+      <h3>Master's Thesis Film</h3>
+      <p class="role">Director, Sound Designer, Composer. In development, 2026 to 2027</p>
       <p>An audio-first visual experience for introspection, 15 to 20 minutes long, where sound leads and image follows.</p>
       <p>It moves between the sounds of the world at every scale, from the molecular to the cosmological, drawing on entropy, emergence and non-dual philosophy. Mixed in Dolby Atmos 7.1.4 with binaural versions. A companion installation opens in December 2026.</p>
     </article>
     <article>
       <h3>SPAN</h3>
-      <p class="role">Spatial Positional Audio Network. Independent R&amp;D, in development</p>
+      <p class="role">Spatial Positional Audio Network. Personal R&amp;D, ongoing</p>
       <p>A sensor-based system that turns real-time position data from performers and microphones into spatial audio.</p>
       <p>Designed for film production, game audio and mocap stages, Dolby Atmos mixing and music production.</p>
     </article>
     <article>
       <h3>Antara: Between the Notes</h3>
-      <p class="role">Researcher, sound designer. Carnegie Library, Dún Laoghaire, May 2026</p>
+      <p class="role">Researcher, Sound Designer. Carnegie Library, Dún Laoghaire, May 2026</p>
       <p>An audio-visual installation on how microtonal ornamentation shapes raga identity, using Darbari Kanada, Jog and Kafi, with Carnatic guitarist Abhay Nayampally and sitarist Paulson K J.</p>
       <p>Includes a research paper, musician interviews and audience response data. <a href="https://abhiimhere.github.io/Antara" target="_blank" rel="noopener">Visit the Antara site</a></p>
     </article>
@@ -308,23 +309,23 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section id="music" aria-labelledby="music-h">
-  <h2 id="music-h">Original music</h2>
-  <p class="lede">Producing as HavinBae since 2019, from club records to experimental Atmos pieces, and producing for independent hip-hop and R&amp;B artists from first beat to final master.</p>
+  <h2 id="music-h">Electronic Music</h2>
+  <p class="lede">Producing as HavinBae since 2019, across many genres, plus records for independent hip-hop and R&amp;B artists.</p>
   <div class="tracklist">
     <article class="track playable" data-kind="drive" data-src="https://drive.google.com/file/d/1tEYBqfGKUiiXRqQUJJafC3TaQeDZqftb/preview" data-audio="audio/radio-police.mp3" data-thumb="img/radio-police.jpg" data-title="Radio Police" data-sub="HavinBae, October 2026">
       <button class="disc" aria-label="Play Radio Police"><canvas aria-hidden="true"></canvas><img src="img/radio-police.jpg" alt=""><span class="hole"></span></button>
       <div class="tinfo">
         <h3>Radio Police</h3>
-        <p class="meta">Producer and mix engineer, October 2026</p>
+        <p class="meta">Producer and Mix Engineer, October 2026</p>
         <p>Dubstep and techno hybrid built for the club.</p>
         <div class="wavebox" aria-hidden="true"><canvas></canvas></div>
       </div>
     </article>
-    <article class="track playable" data-kind="drive" data-src="https://drive.google.com/file/d/17mIyWVGpBO2G9VDWeBk5M0wGfdCLW3QV/preview" data-audio="audio/demons-are-here.mp3" data-thumb="img/demons.jpg" data-title="Demons Are Here" data-sub="Music producer, Atmos mix engineer">
+    <article class="track playable" data-kind="drive" data-src="https://drive.google.com/file/d/17mIyWVGpBO2G9VDWeBk5M0wGfdCLW3QV/preview" data-audio="audio/demons-are-here.mp3" data-thumb="img/demons.jpg" data-title="Demons Are Here" data-sub="Music Producer, Atmos Mix Engineer">
       <button class="disc" aria-label="Play Demons Are Here"><canvas aria-hidden="true"></canvas><img src="img/demons.jpg" alt=""><span class="hole"></span></button>
       <div class="tinfo">
         <h3>Demons Are Here</h3>
-        <p class="meta">Producer and Atmos mix engineer, IADT Dublin, December 2025</p>
+        <p class="meta">Producer and Atmos Mix Engineer, IADT Dublin, December 2025</p>
         <p>A 4:30 experimental piece across five genres, co-created with Olivia Soenarto and mixed in Dolby Atmos.</p>
         <div class="wavebox" aria-hidden="true"><canvas></canvas></div>
       </div>
@@ -333,7 +334,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <button class="disc" aria-label="Play Psyghori"><canvas aria-hidden="true"></canvas><img src="img/psyghori.jpg" alt=""><span class="hole"></span></button>
       <div class="tinfo">
         <h3>Psyghori</h3>
-        <p class="meta">Producer and mix engineer, July 2020</p>
+        <p class="meta">Producer and Mix Engineer, July 2020</p>
         <p>A minute-long flip for the TuneCore x Ritviz #FlipTheBeat challenge.</p>
         <div class="wavebox" aria-hidden="true"><canvas></canvas></div>
       </div>
@@ -342,24 +343,24 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section id="about" aria-labelledby="about-h">
-  <h2 id="about-h">Background</h2>
-  <p class="lede">Trained in sound recording and television engineering at the Film and Television Institute of India, on a foundation of computer science, physics and mathematics.</p>
+  <h2 id="about-h">About</h2>
+  <p class="lede">Trained at the Film and Television Institute of India, with a background in computer science, physics and mathematics.</p>
   <div class="about">
     <div>
-      <h3>Experience and education</h3>
+      <h3>Experience and Education</h3>
       <dl>
         <dt>Erasmus Mundus Joint Masters in Sound (ReSound, FilmEU)</dt>
         <dd>IADT Dublin, Universidade Lusófona Lisbon and LMTA Vilnius. 2025 to 2027</dd>
-        <dt>Sound designer, dubbing and mixing engineer, ND9 Studios, Pune</dt>
+        <dt>Sound Designer, Dubbing and Mixing Engineer, ND9 Studios, Pune</dt>
         <dd>Films and songs in a Dolby-certified 5.1 mixing studio. November 2022 to November 2023</dd>
-        <dt>Music producer, HavinBae and Mehfil Studios, Nagpur</dt>
+        <dt>Music Producer, HavinBae and Mehfil Studios, Nagpur</dt>
         <dd>30+ releases, from beat to vocal production and final master. 2019 to present</dd>
         <dt>Postgraduate Certificate in Sound Recording and Television Engineering, FTII</dt>
         <dd>Pune, 2024</dd>
       </dl>
     </div>
     <div class="skills">
-      <h3>Tools and skills</h3>
+      <h3>Tools and Skills</h3>
       <p><strong>Sound.</strong> Location and sync sound, boom, field recording, Foley, ADR, dialogue editing, restoration, 5.1 and Dolby Atmos mixing, live broadcast mixing.</p>
       <p><strong>Music.</strong> Scoring, orchestration, electronic and acoustic production. Guitar, synths and flute.</p>
       <p><strong>Software.</strong> Pro Tools, Logic Pro, FL Studio, iZotope RX, Melodyne, Dolby Atmos Renderer.</p>
@@ -371,7 +372,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 </section>
 
 <section class="contact" aria-labelledby="contact-h">
-  <h2 id="contact-h">Start a project</h2>
+  <h2 id="contact-h">Let's Work Together</h2>
   <p class="mail"><a href="mailto:abhinavkjayan005@gmail.com">abhinavkjayan005@gmail.com</a></p>
   <div class="links">
     <a href="tel:+37063264843">+370 632 64843</a>
@@ -381,7 +382,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 </section>
 
-<footer>Based in Vilnius. In Dublin from February 2027.</footer>
+<footer>Based in Vilnius, moving to Dublin in February 2027.</footer>
 </div>
 </div>
 
