@@ -788,10 +788,10 @@ function frame(){
     analyser.getByteFrequencyData(fbuf); bins = fbuf;
     let s = 0; for (let k=0;k<64;k++) s += fbuf[k]; level.v = level.v*.7 + (s/64/255)*.3;
     // kick detector: energy in roughly 40 to 140 Hz against its own slow average
-    const hz = actx.sampleRate / analyser.fftSize, lo = Math.max(1, Math.round(45/hz)), hi = Math.round(110/hz);
+    const hz = actx.sampleRate / analyser.fftSize, lo = Math.max(1, Math.round(40/hz)), hi = Math.round(140/hz);
     let b = 0; for (let k=lo;k<=hi;k++) b += fbuf[k]; b = b/(hi-lo+1)/255;
     bass.avg = bass.avg*.96 + b*.04;
-    const hit = Math.max(0, (b - bass.avg*1.05) * 8);
+    const hit = Math.max(0, (b - bass.avg*1.05) * 4.5);
     bass.env = Math.max(bass.env*.85, Math.min(1, hit), b*.3);
   } else if (playing){ level.v = level.v*.9 + (.25 + .15*Math.sin(performance.now()/300))*.1; }
   else { level.v *= .92; if (level.v < .003) level.v = 0; }
@@ -817,8 +817,8 @@ function frame(){
         const raw = bins[Math.min(bins.length-1, Math.round(f/hz))]/255;
         const lowW = Math.pow(1 - t, 1.6);                  // 1 at the bass end, near 0 at the top end
         v = Math.pow(raw, 1.8) * (.22 + .2*lowW)            // everything else: mild movement
-          + bass.env * (.2 + 1.25*lowW);                    // drums: strong, mostly on the low-end bars
-        v = Math.min(1.5, v);
+          + bass.env * (.15 + .85*lowW);                    // drums: strong, mostly on the low-end bars
+        v = Math.min(1.15, v);
       }
       else if (me) v = .25 + .25*Math.abs(Math.sin(k*.5 + performance.now()/240));
       else v = .06 + dsc.it.peaks[k*2 % dsc.it.peaks.length]*.12;
