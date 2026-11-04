@@ -686,6 +686,7 @@ function play(i, reveal){
   start(it);
   if (reveal) requestAnimationFrame(() => revealItem(it));
   $('barImg').src = it.thumb; $('barTitle').textContent = it.title; $('barSub').textContent = it.sub;
+  setSession(it);
   if (!bar.classList.contains('on')){ bar.classList.add('on'); requestAnimationFrame(() => document.documentElement.style.setProperty('--bar-h', bar.offsetHeight + 'px')); }
   syncPP();
 }
@@ -749,6 +750,27 @@ applyVol();
 const goNow = () => { if (items[cur]) revealItem(items[cur]); };
 $('nowBox').addEventListener('click', goNow);
 $('nowBox').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goNow(); } });
+/* phone lock screen and notification player: show the piece's own cover and controls */
+function setSession(it){
+  if (!('mediaSession' in navigator)) return;
+  const abs = u => new URL(u, location.href).href;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: it.title, artist: 'Abhinav K Jayan', album: it.sub || 'Portfolio',
+      artwork: [
+        { src: abs(it.thumb), sizes: '512x512', type: 'image/jpeg' },
+        { src: abs('apple-touch-icon.png?v=2'), sizes: '180x180', type: 'image/png' }
+      ]
+    });
+  } catch(e){}
+}
+if ('mediaSession' in navigator){
+  const set = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch(e){} };
+  set('play', () => { if (!isPlaying(items[cur])) toggle(); });
+  set('pause', () => { if (isPlaying(items[cur])) toggle(); });
+  set('nexttrack', () => next());
+  set('previoustrack', () => prev());
+}
 $('ppBtn').onclick = toggle; $('nextBtn').onclick = () => next(); $('prevBtn').onclick = prev;
 $('playall').onclick = () => play(0, true);
 items.forEach(it => {
