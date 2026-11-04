@@ -178,7 +178,12 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 /* master playbar */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(4,16,34,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease}
 .bar.on{transform:none}
-.bar .in{max-width:1320px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr);gap:24px;align-items:center}
+.bar .in{max-width:1320px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:24px;align-items:center}
+.vol{display:flex;align-items:center;gap:8px}
+.vol button{width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--paper);cursor:pointer;display:grid;place-items:center}
+.vol button:hover{background:var(--panel)}
+.vol svg{width:18px;height:18px;fill:currentColor}
+.vol input{width:96px;accent-color:var(--vu);cursor:pointer}
 .now{display:flex;gap:12px;align-items:center;min-width:0}
 .now img{width:46px;height:46px;border-radius:4px;object-fit:cover;flex:none;background:var(--panel)}
 .now b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -201,7 +206,8 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   .top nav{gap:0;overflow-x:auto;max-width:100%}
   .top nav a{padding:8px 10px;font-size:11px;letter-spacing:.1em}
   body{font-size:16px}
-  .bar .in{grid-template-columns:minmax(0,1fr) auto;gap:10px}
+  .bar .in{grid-template-columns:minmax(0,1fr) auto auto;gap:10px}
+  .vol input{display:none}
   .prog{grid-column:1/-1;order:3}
 }
 @media (max-width:520px){.top{flex-direction:column;align-items:flex-start;gap:8px;top:8px}}
@@ -437,6 +443,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <button id="nextBtn" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
     </div>
     <div class="prog"><span id="tCur">0:00</span><canvas id="barWave" aria-label="Seek"></canvas><span id="tDur">0:00</span></div>
+    <div class="vol" id="volBox"><button id="muteBtn" aria-label="Mute"><svg viewBox="0 0 24 24" id="volIcon"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/></svg></button><input type="range" id="volRange" min="0" max="100" step="1" value="80" aria-label="Volume"></div>
   </div>
 </div>
 
@@ -446,13 +453,17 @@ const AMBER = '#e3a33b', DIM = '#36557a';
 
 /* ---------- shared audio energy (drives background + discs) ---------- */
 const level = { v: 0 };            // 0..1 loudness of whatever is playing
-let actx = null, analyser = null, fbuf = null, tbuf = null;
+let actx = null, analyser = null, fbuf = null, tbuf = null, master = null;
+/* master volume: defaults to 80%, remembered per visitor */
+const vol = { v: .8, muted: false };
+try { const sv = localStorage.getItem('vol'); if (sv !== null && !isNaN(+sv)) vol.v = Math.min(1, Math.max(0, +sv)); } catch(e){}
 function ensureAudioGraph(){
   if (actx) return;
   actx = new (window.AudioContext || window.webkitAudioContext)();
   analyser = actx.createAnalyser(); analyser.fftSize = 512; analyser.smoothingTimeConstant = .82;
   fbuf = new Uint8Array(analyser.frequencyBinCount); tbuf = new Uint8Array(analyser.fftSize);
-  analyser.connect(actx.destination);
+  master = actx.createGain(); master.gain.value = vol.muted ? 0 : vol.v;
+  analyser.connect(master); master.connect(actx.destination);
 }
 
 /* ---------- 1. sound field background ----------
@@ -644,7 +655,7 @@ async function start(it){
       host(it).appendChild(it.mount);
       await loadYT();
       it.yt = new YT.Player(slot, { videoId: it.el.dataset.yt, playerVars: { autoplay:1, rel:0, modestbranding:1, playsinline:1 },
-        events: { onReady: e => { if (it.playing) e.target.playVideo(); },
+        events: { onReady: e => { applyVolYT(e.target); if (it.playing) e.target.playVideo(); },
                   onStateChange: e => { if (e.data === 0) next(true); if (e.data === 1 && items[cur] !== it) play(it.i); syncPP(); } } });
     } else if (it.yt && it.yt.playVideo) it.yt.playVideo();
     return;
@@ -702,6 +713,22 @@ function onFs(){
 }
 document.addEventListener('fullscreenchange', onFs);
 document.addEventListener('webkitfullscreenchange', onFs);
+/* volume */
+const ICON_ON = '<path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/>';
+const ICON_OFF = '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="1.8" fill="none"/>';
+function applyVolYT(p){ try { if (vol.muted || vol.v === 0) p.mute(); else { p.unMute(); p.setVolume(Math.round(vol.v*100)); } } catch(e){} }
+function applyVol(){
+  const g = vol.muted ? 0 : vol.v;
+  if (master) master.gain.setTargetAtTime(g, actx.currentTime, .02);
+  items.forEach(o => { if (o.yt && o.yt.setVolume) applyVolYT(o.yt); });
+  $('volRange').value = Math.round((vol.muted ? 0 : vol.v)*100);
+  $('volRange').style.background = '';
+  $('volIcon').innerHTML = g === 0 ? ICON_OFF : ICON_ON;
+  $('muteBtn').setAttribute('aria-label', g === 0 ? 'Unmute' : 'Mute');
+}
+$('volRange').addEventListener('input', e => { vol.v = e.target.value/100; vol.muted = false; try { localStorage.setItem('vol', vol.v); } catch(err){} applyVol(); });
+$('muteBtn').onclick = () => { if (vol.v === 0){ vol.v = .8; vol.muted = false; } else vol.muted = !vol.muted; applyVol(); };
+applyVol();
 $('ppBtn').onclick = toggle; $('nextBtn').onclick = () => next(); $('prevBtn').onclick = prev;
 $('playall').onclick = () => play(0, true);
 items.forEach(it => {
