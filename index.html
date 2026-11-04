@@ -465,7 +465,7 @@ const level = { v: 0 };            // 0..1 loudness of whatever is playing
 let actx = null, analyser = null, fbuf = null, tbuf = null, master = null;
 /* master volume: defaults to 80%, remembered per visitor */
 const vol = { v: .8, muted: false };
-try { const sv = localStorage.getItem('vol'); if (sv !== null && !isNaN(+sv)) vol.v = Math.min(1, Math.max(0, +sv)); } catch(e){}
+try { const sv = sessionStorage.getItem('vol'); if (sv !== null && !isNaN(+sv)) vol.v = Math.min(1, Math.max(0, +sv)); } catch(e){}
 function ensureAudioGraph(){
   if (actx) return;
   actx = new (window.AudioContext || window.webkitAudioContext)();
@@ -735,7 +735,7 @@ function applyVol(){
   $('volIcon').innerHTML = g === 0 ? ICON_OFF : ICON_ON;
   $('muteBtn').setAttribute('aria-label', g === 0 ? 'Unmute' : 'Mute');
 }
-$('volRange').addEventListener('input', e => { vol.v = e.target.value/100; vol.muted = false; try { localStorage.setItem('vol', vol.v); } catch(err){} applyVol(); });
+$('volRange').addEventListener('input', e => { vol.v = e.target.value/100; vol.muted = false; try { sessionStorage.setItem('vol', vol.v); } catch(err){} applyVol(); });
 const narrow = matchMedia('(max-width:860px), (pointer:coarse)');
 $('muteBtn').onclick = e => {
   if (narrow.matches){ e.stopPropagation(); $('volBox').classList.toggle('open'); $('muteBtn').setAttribute('aria-expanded', $('volBox').classList.contains('open')); return; }
