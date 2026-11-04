@@ -153,7 +153,7 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .tinfo h3{font-size:clamp(26px,3vw,36px);font-weight:400;letter-spacing:-.02em;margin:0 0 4px;line-height:1.1}
 .tinfo .meta{color:var(--dim);margin:0 0 6px;font-size:15px}
 .tinfo p{margin:0;color:var(--dim);max-width:60ch}
-.wavebox{position:relative;height:96px;margin-top:22px;cursor:pointer}
+.wavebox{position:relative;height:96px;margin-top:22px;cursor:pointer;touch-action:pan-y}
 .wavebox canvas{position:absolute;inset:0;width:100%;height:100%}
 .wavebox .mount{border-radius:6px;inset:auto 0 0 0;height:96px}
 .track.framed .wavebox{height:160px}
@@ -204,7 +204,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 .ctl button.pp:hover{background:var(--vu)}
 .ctl svg{width:18px;height:18px;fill:currentColor}
 .prog{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
-.prog canvas{width:100%;height:34px;cursor:pointer;display:block}
+.prog canvas{width:100%;height:34px;cursor:pointer;display:block;touch-action:none}
 .prog .hint{grid-column:1/-1;font-size:13px}
 @media (max-width:860px){
   .hero .row,.recog,.about{grid-template-columns:1fr;gap:28px}
@@ -776,22 +776,34 @@ $('playall').onclick = () => play(0, true);
 items.forEach(it => {
   const trig = it.isTrack ? it.el.querySelector('.disc') : it.el.querySelector('.go');
   trig.addEventListener('click', () => (cur === it.i ? toggle() : play(it.i)));
-  if (it.isTrack){
-    it.el.querySelector('.wavebox').addEventListener('click', e => {
-      if (it.mount) return;
-      const r = e.currentTarget.getBoundingClientRect(), f = (e.clientX - r.left)/r.width;
-      if (cur !== it.i) play(it.i);
-      const go = () => { if (it.audio && it.audio.duration) it.audio.currentTime = f*it.audio.duration; };
-      it.audio && it.audio.duration ? go() : setTimeout(go, 400);
-    });
-  }
+  if (it.isTrack) scrubber(it.el.querySelector('.wavebox'), () => {
+    if (it.mount) return null;
+    if (cur !== it.i) play(it.i);
+    return it;
+  });
 });
-$('barWave').addEventListener('click', e => {
-  const it = items[cur]; if (!it) return;
-  const r = e.currentTarget.getBoundingClientRect(), f = (e.clientX - r.left)/r.width;
+/* press and drag to scrub: works with mouse, pen and touch */
+function seekTo(it, f, final){
+  f = Math.min(1, Math.max(0, f));
   if (it.audio && it.audio.duration) it.audio.currentTime = f*it.audio.duration;
-  else if (it.yt && it.yt.getDuration) it.yt.seekTo(f*it.yt.getDuration(), true);
-});
+  else if (it.audio){ const go = () => { it.audio.currentTime = f*it.audio.duration; }; it.audio.addEventListener('loadedmetadata', go, { once:true }); }
+  else if (it.yt && it.yt.getDuration && it.yt.getDuration()) it.yt.seekTo(f*it.yt.getDuration(), !!final);
+}
+function scrubber(el, pick){
+  let it = null, id = null;
+  const frac = e => { const r = el.getBoundingClientRect(); return (e.clientX - r.left)/r.width; };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    it = pick(); if (!it) return;
+    id = e.pointerId; try { el.setPointerCapture(id); } catch(err){}
+    seekTo(it, frac(e), false); e.preventDefault();
+  });
+  el.addEventListener('pointermove', e => { if (it && e.pointerId === id) seekTo(it, frac(e), false); });
+  const end = e => { if (it && e.pointerId === id){ seekTo(it, frac(e), true); it = null; id = null; } };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', () => { it = null; id = null; });
+}
+scrubber($('barWave'), () => items[cur] || null);
 addEventListener('keydown', e => { if (e.code === 'Space' && cur !== -1 && !/INPUT|TEXTAREA|BUTTON|A/.test(document.activeElement.tagName)) { e.preventDefault(); toggle(); } });
 
 /* progress, discs and analyser, one loop */
