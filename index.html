@@ -177,8 +177,9 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
 /* master playbar */
 @media (pointer:coarse){
-  .vol input{display:none}
-  .vol.open input{display:block;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:36px;height:140px;padding:14px 0;margin:0;writing-mode:vertical-lr;direction:rtl;background:rgba(4,16,34,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px}
+  .vol .pop{display:none}
+  .vol.open .pop{display:flex;justify-content:center;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:44px;padding:16px 0;background:rgba(4,16,34,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px}
+  .vol.open input{display:block;width:24px;height:132px;margin:0;padding:0;writing-mode:vertical-lr;direction:rtl}
   .vol.open button{background:var(--panel)}
 }
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(4,16,34,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease}
@@ -212,8 +213,9 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   .top nav a{padding:8px 10px;font-size:11px;letter-spacing:.1em}
   body{font-size:16px}
   .bar .in{grid-template-columns:minmax(0,1fr) auto auto;gap:10px}
-  .vol input{display:none}
-  .vol.open input{display:block;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:36px;height:140px;padding:14px 0;margin:0;writing-mode:vertical-lr;direction:rtl;background:rgba(4,16,34,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px}
+  .vol .pop{display:none}
+  .vol.open .pop{display:flex;justify-content:center;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:44px;padding:16px 0;background:rgba(4,16,34,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px}
+  .vol.open input{display:block;width:24px;height:132px;margin:0;padding:0;writing-mode:vertical-lr;direction:rtl}
   .vol.open button{background:var(--panel)}
   .prog{grid-column:1/-1;order:3}
 }
@@ -450,7 +452,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <button id="nextBtn" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
     </div>
     <div class="prog"><span id="tCur">0:00</span><canvas id="barWave" aria-label="Seek"></canvas><span id="tDur">0:00</span></div>
-    <div class="vol" id="volBox"><button id="muteBtn" aria-label="Mute"><svg viewBox="0 0 24 24" id="volIcon"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/></svg></button><input type="range" id="volRange" min="0" max="100" step="1" value="80" aria-label="Volume"></div>
+    <div class="vol" id="volBox"><button id="muteBtn" aria-label="Mute"><svg viewBox="0 0 24 24" id="volIcon"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9h4l5-4v14l-5-4H4z"/></svg></button><span class="pop"><input type="range" id="volRange" min="0" max="100" step="1" value="80" aria-label="Volume"></span></div>
   </div>
 </div>
 
