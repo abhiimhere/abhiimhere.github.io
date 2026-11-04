@@ -501,18 +501,22 @@ function ensureAudioGraph(){
   }, { passive:true });
 
   // pointer motion: ripples follow the cursor wherever it moves
-  addEventListener('pointermove', e => {
+  function trail(px, py){
     if (reduce) return;
     const now = performance.now();
     if (last){
-      const dist = Math.hypot(e.clientX - last.x, e.clientY - last.y), dt = Math.max(1, now - lastT);
+      const dist = Math.hypot(px - last.x, py - last.y), dt = Math.max(1, now - lastT);
       if (dist < 6 || now - lastT < 45) return;
       const speed = dist / dt;                     // px per ms
-      ripples.push({ x:e.clientX, y:e.clientY, t0:now, a: Math.min(1.7, .55 + speed*.9) });
+      ripples.push({ x:px, y:py, t0:now, a: Math.min(1.7, .55 + speed*.9) });
       if (ripples.length > 26) ripples.shift();
     }
-    last = { x:e.clientX, y:e.clientY }; lastT = now;
-  }, { passive:true });
+    last = { x:px, y:py }; lastT = now;
+  }
+  addEventListener('pointermove', e => { if (e.pointerType !== 'touch') trail(e.clientX, e.clientY); }, { passive:true });
+  // touch: follow the finger even while the page is scrolling (pointer events stop once a scroll starts)
+  addEventListener('touchstart', e => { const t = e.touches[0]; if (t){ last = { x:t.clientX, y:t.clientY }; lastT = performance.now(); } }, { passive:true });
+  addEventListener('touchmove', e => { const t = e.touches[0]; if (t) trail(t.clientX, t.clientY); }, { passive:true });
   addEventListener('pointerdown', e => { if (!reduce) ripples.push({ x:e.clientX, y:e.clientY, t0:performance.now(), a:2.4 }); }, { passive:true });
 
   function draw(){
