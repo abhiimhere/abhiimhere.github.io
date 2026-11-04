@@ -470,7 +470,7 @@ try { const sv = sessionStorage.getItem('vol'); if (sv !== null && !isNaN(+sv)) 
 function ensureAudioGraph(){
   if (actx) return;
   actx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = actx.createAnalyser(); analyser.fftSize = 512; analyser.smoothingTimeConstant = .82;
+  analyser = actx.createAnalyser(); analyser.fftSize = 2048; analyser.smoothingTimeConstant = .55;
   fbuf = new Uint8Array(analyser.frequencyBinCount); tbuf = new Uint8Array(analyser.fftSize);
   master = actx.createGain(); master.gain.value = vol.muted ? 0 : vol.v;
   analyser.connect(master); master.connect(actx.destination);
@@ -779,6 +779,7 @@ function progressOf(it){
 }
 const discs = items.filter(it => it.isTrack).map(it => ({ it, c: it.el.querySelector('.disc canvas'), wave: it.el.querySelector('.wavebox canvas') }));
 let spin = 0;
+const bass = { avg: 0, env: 0 };   // low-end envelope that drives the ring's peaks
 function frame(){
   const it = items[cur], playing = isPlaying(it);
   // analyser level
@@ -786,6 +787,12 @@ function frame(){
   if (analyser && it && it.audio && playing){
     analyser.getByteFrequencyData(fbuf); bins = fbuf;
     let s = 0; for (let k=0;k<64;k++) s += fbuf[k]; level.v = level.v*.7 + (s/64/255)*.3;
+    // kick detector: energy in roughly 40 to 140 Hz against its own slow average
+    const hz = actx.sampleRate / analyser.fftSize, lo = Math.max(1, Math.round(40/hz)), hi = Math.round(140/hz);
+    let b = 0; for (let k=lo;k<=hi;k++) b += fbuf[k]; b = b/(hi-lo+1)/255;
+    bass.avg = bass.avg*.96 + b*.04;
+    const hit = Math.max(0, (b - bass.avg*1.05) * 4.5);
+    bass.env = Math.max(bass.env*.85, Math.min(1, hit), b*.3);
   } else if (playing){ level.v = level.v*.9 + (.25 + .15*Math.sin(performance.now()/300))*.1; }
   else { level.v *= .92; if (level.v < .003) level.v = 0; }
 
@@ -803,7 +810,16 @@ function frame(){
     for (let k=0;k<N;k++){
       const ang = k/N*Math.PI*2 + (me ? spin : 0) - Math.PI/2;
       let v;
-      if (me && bins) v = bins[Math.floor((k < N/2 ? k : N-k) / (N/2) * 120)]/255;
+      if (me && bins){
+        // log-spaced frequencies around each half of the ring: lows at the top, highs at the bottom
+        const t = (k < N/2 ? k : N-k) / (N/2);
+        const hz = actx.sampleRate / analyser.fftSize, f = 35 * Math.pow(9000/35, t);
+        const raw = bins[Math.min(bins.length-1, Math.round(f/hz))]/255;
+        const lowW = Math.pow(1 - t, 1.6);                  // 1 at the bass end, near 0 at the top end
+        v = Math.pow(raw, 1.8) * (.22 + .2*lowW)            // everything else: mild movement
+          + bass.env * (.15 + .85*lowW);                    // drums: strong, mostly on the low-end bars
+        v = Math.min(1.15, v);
+      }
       else if (me) v = .25 + .25*Math.abs(Math.sin(k*.5 + performance.now()/240));
       else v = .06 + dsc.it.peaks[k*2 % dsc.it.peaks.length]*.12;
       const len = 4 + v*(w*.13);
