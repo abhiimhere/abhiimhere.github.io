@@ -176,6 +176,11 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
 /* master playbar */
+@media (pointer:coarse){
+  .vol input{display:none}
+  .vol.open input{display:block;position:absolute;bottom:52px;left:50%;transform:translateX(-50%);width:36px;height:140px;padding:14px 0;margin:0;writing-mode:vertical-lr;direction:rtl;background:rgba(4,16,34,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px}
+  .vol.open button{background:var(--panel)}
+}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(4,16,34,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(105%);transition:transform .35s ease}
 .bar.on{transform:none}
 .bar .in{max-width:1320px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:24px;align-items:center}
@@ -729,7 +734,7 @@ function applyVol(){
   $('muteBtn').setAttribute('aria-label', g === 0 ? 'Unmute' : 'Mute');
 }
 $('volRange').addEventListener('input', e => { vol.v = e.target.value/100; vol.muted = false; try { localStorage.setItem('vol', vol.v); } catch(err){} applyVol(); });
-const narrow = matchMedia('(max-width:860px)');
+const narrow = matchMedia('(max-width:860px), (pointer:coarse)');
 $('muteBtn').onclick = e => {
   if (narrow.matches){ e.stopPropagation(); $('volBox').classList.toggle('open'); $('muteBtn').setAttribute('aria-expanded', $('volBox').classList.contains('open')); return; }
   if (vol.v === 0){ vol.v = .8; vol.muted = false; } else vol.muted = !vol.muted; applyVol();
