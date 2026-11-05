@@ -170,6 +170,17 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .skills p{margin:0 0 12px;color:var(--dim)}
 .skills strong{color:var(--paper);font-weight:500}
 
+/* deliverables */
+.deliver{margin-top:56px;border-top:1px solid var(--line);padding-top:28px}
+.deliver h3{font-size:18px;font-weight:500;margin:0 0 6px}
+.deliver .sub{color:var(--dim);margin:0 0 22px;max-width:60ch}
+.deliver dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 40px;margin:0}
+.deliver dl>div{border-top:2px solid var(--vu);padding-top:12px}
+.deliver dt{font-weight:500;margin-bottom:4px}
+.deliver dd{margin:0;color:var(--dim);font-size:15.5px}
+@media (max-width:860px){.deliver dl{grid-template-columns:1fr 1fr;gap:20px 24px}}
+@media (max-width:520px){.deliver dl{grid-template-columns:1fr}}
+
 /* contact */
 .contact{padding:96px 0 40px;border-top:1px solid var(--line);margin-top:56px}
 .contact h2{font-size:clamp(44px,8vw,110px);font-weight:200;letter-spacing:-.045em}
@@ -470,6 +481,20 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <p><strong>Languages.</strong> English, Hindi, Marathi, Malayalam and Tamil, with basic Spanish.</p>
     </div>
   </div>
+
+  <div class="deliver">
+    <h3>What I deliver</h3>
+    <p class="sub">Ready for picture editors, festivals, broadcasters and labels.</p>
+    <dl>
+      <div><dt>Mixes</dt><dd>Stereo, 5.1 and Dolby Atmos, with an ADM BWF master and a binaural re-render for headphones.</dd></div>
+      <div><dt>Stems</dt><dd>Dialogue, music and effects stems, plus an M&amp;E for international versions.</dd></div>
+      <div><dt>Loudness</dt><dd>EBU R128 at −23 LUFS for broadcast and festivals. Other specs, including streaming, on request.</dd></div>
+      <div><dt>Session handover</dt><dd>Pro Tools sessions, and AAF or OMF exchange with picture editors.</dd></div>
+      <div><dt>Sync and timecode</dt><dd>23.976, 24 and 25 fps, with frame-accurate conform to picture changes.</dd></div>
+      <div><dt>Music</dt><dd>WAV masters at 24-bit, 48 kHz or higher, with instrumentals and stems for licensing.</dd></div>
+    </dl>
+  </div>
+
 </section>
 
 <section id="contact" class="contact" aria-labelledby="contact-h">
