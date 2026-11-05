@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Site Editor</title>
+<link rel="icon" href="../favicon.svg?v=2" type="image/svg+xml">
+<style>
+:root{--deep:#04122a;--panel:#0b2443;--line:rgba(140,185,230,.2);--ink:#e8eef4;--dim:#93a9c0;--amber:#e3a33b;--red:#e8322c;--ok:#5fc59a;--sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%}
+body{margin:0;background:var(--deep);color:var(--ink);font:15px/1.5 var(--sans)}
+button,input{font:inherit}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn:hover{border-color:var(--dim)}
+.btn.main{background:var(--amber);border-color:var(--amber);color:#04122a;font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+a{color:#7cc4f0}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+/* gate screens */
+.gate{min-height:100%;display:grid;place-items:center;padding:24px 16px}
+.card{width:100%;max-width:440px;background:#071a36;border:1px solid var(--line);border-radius:14px;padding:28px}
+.card h1{font-size:22px;font-weight:500;margin:0 0 6px}
+.card p{color:var(--dim);margin:0 0 18px}
+.card ol{color:var(--dim);padding-left:20px;margin:0 0 18px}
+.card ol li{margin-bottom:6px}
+label{display:block;font-size:13px;color:var(--dim);margin:12px 0 4px}
+input[type=password],input[type=text],input[type=url]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--deep);color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.msg{min-height:1.4em;margin-top:12px;font-size:14px;color:var(--dim)}
+.msg.err{color:#ff8a80}
+.small{font-size:13px;color:var(--dim)}
+/* editor */
+#editor{display:none;height:100%;flex-direction:column}
+#editor.on{display:flex}
+.bar{display:flex;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:#071a36;flex-wrap:wrap}
+.bar .title{font-weight:600;margin-right:auto}
+.bar .hint{color:var(--dim);font-size:13px;width:100%}
+#status{font-size:13px;color:var(--dim)}
+#status.dirty{color:var(--amber)}
+iframe{flex:1;width:100%;border:0;background:#04122a}
+dialog{background:#071a36;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(460px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{margin:0 0 4px;font-size:18px;font-weight:500}
+@media (max-width:640px){.bar .hint{display:none}}
+</style>
+</head>
+<body>
+
+<!-- set up: choose a password, store the GitHub key encrypted with it -->
+<div class="gate" id="setup" hidden>
+  <div class="card">
+    <h1>Set up the site editor</h1>
+    <p>This happens once. You give the editor a GitHub key that can only change this website, and protect it with your own password.</p>
+    <ol>
+      <li><a id="tokLink" target="_blank" rel="noopener">Create the GitHub key</a>. Under <b>Repository access</b> pick <b>Only select repositories</b> and choose <b>abhiimhere.github.io</b>. Under <b>Permissions</b>, set <b>Contents</b> to <b>Read and write</b>. Then generate it and copy it.</li>
+      <li>Paste it below and choose a password of at least 12 characters.</li>
+    </ol>
+    <label for="sTok">GitHub key</label>
+    <input type="password" id="sTok" autocomplete="off" placeholder="github_pat_…">
+    <label for="sPw">New password</label>
+    <input type="password" id="sPw" autocomplete="new-password">
+    <label for="sPw2">Repeat password</label>
+    <input type="password" id="sPw2" autocomplete="new-password">
+    <div class="row"><button class="btn main" id="sGo">Save and open editor</button><a class="small" href="#" id="toLogin" hidden>I already have a password</a></div>
+    <div class="msg" id="sMsg" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- log in -->
+<div class="gate" id="login" hidden>
+  <div class="card">
+    <h1>Site editor</h1>
+    <p>Enter your password to edit abhiimhere.github.io.</p>
+    <label for="lPw">Password</label>
+    <input type="password" id="lPw" autocomplete="current-password">
+    <div class="row"><button class="btn main" id="lGo">Log in</button><a class="small" href="#setup" id="toSetup">Forgot it? Set a new one</a></div>
+    <div class="msg" id="lMsg" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- editor -->
+<div id="editor">
+  <div class="bar">
+    <span class="title">Site Editor</span>
+    <span id="status">Loading…</span>
+    <button class="btn" id="discard">Discard changes</button>
+    <a class="btn" href="../" target="_blank" rel="noopener" style="text-decoration:none">View site</a>
+    <button class="btn main" id="save" disabled>Publish</button>
+    <button class="btn" id="logout">Log out</button>
+    <span class="hint">Click any text to change it. Hover a section or a piece to move it, duplicate it to add a new one, or remove it. Changes go live about a minute after you press Publish.</span>
+  </div>
+  <iframe id="frame" title="Editable copy of the website"></iframe>
+</div>
+
+<!-- media dialog for a film or track -->
+<dialog id="media">
+  <form method="dialog">
+    <h2 id="mTitle">Media</h2>
+    <p class="small" id="mHelp"></p>
+    <label for="mLink">Video or audio link (YouTube or Google Drive)</label>
+    <input type="url" id="mLink" placeholder="https://youtu.be/… or https://drive.google.com/file/d/…">
+    <label for="mThumb">Thumbnail image (optional, replaces the current one)</label>
+    <input type="file" id="mThumb" accept="image/jpeg,image/png,image/webp">
+    <div id="mAudioWrap">
+      <label for="mAudio">MP3 for the waveform and spectrum (optional)</label>
+      <input type="file" id="mAudio" accept="audio/mpeg">
+    </div>
+    <div class="row"><button class="btn main" value="ok" id="mOk">Apply</button><button class="btn" value="cancel">Cancel</button></div>
+    <div class="msg" id="mMsg"></div>
+  </form>
+</dialog>
+
+<script>
+const OWNER = 'abhiimhere', REPO = 'abhiimhere.github.io', BRANCH = 'main';
+const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
+const VAULT = 'admin/vault.json';
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder(), dec = new TextDecoder();
+let TOKEN = null;
+
+$('tokLink').href = 'https://github.com/settings/personal-access-tokens/new?name=Website%20editor&description=Lets%20the%20site%20editor%20change%20abhiimhere.github.io&target_name=abhiimhere&expires_in=366&contents=write';
+
+/* ---------- crypto: the GitHub key is stored only encrypted with your password ---------- */
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function keyFrom(pw, salt, iter){
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name:'PBKDF2', salt, iterations: iter, hash:'SHA-256' }, base, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+}
+async function seal(secret, pw){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), iter = 600000;
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, await keyFrom(pw, salt, iter), enc.encode(secret));
+  return { v:1, kdf:'PBKDF2-SHA256', iter, salt: b64(salt), iv: b64(iv), ct: b64(new Uint8Array(ct)) };
+}
+async function unseal(vault, pw){
+  const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv: unb64(vault.iv) }, await keyFrom(pw, unb64(vault.salt), vault.iter), unb64(vault.ct));
+  return dec.decode(pt);
+}
+
+/* ---------- GitHub contents API ---------- */
+const utf8b64 = s => { const u = enc.encode(s); let out = ''; for (let i = 0; i < u.length; i += 0x8000) out += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(out); };
+const b64utf8 = s => dec.decode(unb64(s.replace(/\n/g,'')));
+async function gh(path, opts = {}, token = TOKEN){
+  const r = await fetch(API + path + (opts.method ? '' : `?ref=${BRANCH}&t=${Date.now()}`), {
+    ...opts, headers: { 'Accept':'application/vnd.github+json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}), ...(opts.headers||{}) }
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) { const e = new Error((await r.json().catch(()=>({}))).message || r.statusText); e.status = r.status; throw e; }
+  return r.json();
+}
+async function getText(path, token){ const f = await gh(path, {}, token); return f ? { sha: f.sha, text: b64utf8(f.content) } : null; }
+async function putFile(path, b64content, message, sha, token = TOKEN){
+  return gh(path, { method:'PUT', body: JSON.stringify({ message, content: b64content, branch: BRANCH, ...(sha ? { sha } : {}) }) }, token);
+}
+async function fileToB64(file){ const u = new Uint8Array(await file.arrayBuffer()); let s=''; for (let i=0;i<u.length;i+=0x8000) s += String.fromCharCode(...u.subarray(i,i+0x8000)); return btoa(s); }
+
+/* ---------- screens ---------- */
+function show(id){ for (const s of ['setup','login']) $(s).hidden = s !== id; $('editor').classList.toggle('on', id === 'editor'); }
+let vault = null;
+async function boot(){
+  try { const f = await gh(VAULT, {}, null); vault = f ? JSON.parse(b64utf8(f.content)) : null; } catch(e){ vault = null; }
+  const saved = sessionStorage.getItem('ghk');
+  if (saved){ TOKEN = saved; return openEditor(); }
+  if (!vault || location.hash === '#setup'){ $('toLogin').hidden = !vault; show('setup'); $('sTok').focus(); }
+  else { show('login'); $('lPw').focus(); }
+}
+$('toLogin').onclick = e => { e.preventDefault(); history.replaceState(null,'','#'); show('login'); };
+$('toSetup').onclick = e => { e.preventDefault(); $('toLogin').hidden = false; show('setup'); };
+
+$('sGo').onclick = async () => {
+  const tok = $('sTok').value.trim(), pw = $('sPw').value, pw2 = $('sPw2').value, msg = $('sMsg');
+  msg.className = 'msg err';
+  if (!tok) return msg.textContent = 'Paste the GitHub key first.';
+  if (pw.length < 12) return msg.textContent = 'Use a password of at least 12 characters.';
+  if (pw !== pw2) return msg.textContent = 'The two passwords don\'t match.';
+  msg.className = 'msg'; msg.textContent = 'Checking the key…'; $('sGo').disabled = true;
+  try {
+    const page = await getText('index.html', tok);
+    if (!page) throw new Error('This key can\'t see the website. Check it was given access to abhiimhere.github.io.');
+    msg.textContent = 'Saving…';
+    const existing = await gh(VAULT, {}, tok);
+    await putFile(VAULT, utf8b64(JSON.stringify(await seal(tok, pw))), 'Set site editor password', existing && existing.sha, tok);
+    TOKEN = tok; sessionStorage.setItem('ghk', tok);
+    $('sTok').value = $('sPw').value = $('sPw2').value = '';
+    history.replaceState(null,'','#'); openEditor();
+  } catch(e){
+    msg.className = 'msg err';
+    msg.textContent = e.status === 403 ? 'The key can read but not write. Set Contents to Read and write, then try again.' : (e.status === 401 ? 'GitHub didn\'t accept that key. Copy it again and paste it.' : e.message);
+  }
+  $('sGo').disabled = false;
+};
+async function tryLogin(){
+  const msg = $('lMsg'); msg.className = 'msg'; msg.textContent = 'Unlocking…'; $('lGo').disabled = true;
+  try { TOKEN = await unseal(vault, $('lPw').value); $('lPw').value = ''; sessionStorage.setItem('ghk', TOKEN); openEditor(); }
+  catch(e){ msg.className = 'msg err'; msg.textContent = 'Wrong password.'; }
+  $('lGo').disabled = false;
+}
+$('lGo').onclick = tryLogin;
+$('lPw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+$('logout').onclick = () => { if (dirty && !confirm('You have unpublished changes. Log out anyway?')) return; sessionStorage.removeItem('ghk'); TOKEN = null; location.hash = ''; location.reload(); };
+
+/* ---------- editor ---------- */
+let src = null, sha = null, dirty = false, doc = null;
+const SECTION_SEL = 'body > section';
+const ITEM_SEL = '.work, .trio > article, .track, .recog > div, .recog li, .about dt, .skills > p';
+const TEXT_SEL = 'h1, h2, h3, p, li, dt, dd, footer, .btn, figcaption';
+function setDirty(v){ dirty = v; $('save').disabled = !v; $('status').textContent = v ? 'Unpublished changes' : 'Up to date'; $('status').className = v ? 'dirty' : ''; }
+addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
+
+function splitPage(html){
+  const bOpen = html.search(/<body[^>]*>/i), bOpenEnd = html.indexOf('>', bOpen) + 1;
+  const sStart = html.indexOf('<script', bOpenEnd);
+  return { head: html.slice(0, bOpenEnd), body: html.slice(bOpenEnd, sStart), tail: html.slice(sStart) };
+}
+
+async function openEditor(){
+  show('editor'); $('status').textContent = 'Loading…';
+  try {
+    const f = await getText('index.html');
+    src = f.text; sha = f.sha;
+  } catch(e){
+    if (e.status === 401){ sessionStorage.removeItem('ghk'); alert('Your GitHub key has expired or was revoked. Set it up again.'); location.hash = '#setup'; location.reload(); return; }
+    $('status').textContent = 'Couldn\'t load the site: ' + e.message; return;
+  }
+  const { head, body } = splitPage(src);
+  const headInner = head.replace(/^[\s\S]*?<head[^>]*>/i, '').replace(/<\/head>[\s\S]*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+  const fr = $('frame');
+  fr.srcdoc = `<!doctype html><html><head><base href="https://${REPO}/">${headInner}<style data-ed-tmp>${EDIT_CSS}</style></head><body>${body}</body></html>`;
+  fr.onload = () => { doc = fr.contentDocument; wire(); setDirty(false); };
+}
+
+const EDIT_CSS = `
+[data-ed-text]{outline:1px dashed transparent;outline-offset:3px;border-radius:2px;cursor:text}
+[data-ed-text]:hover{outline-color:rgba(227,163,59,.5)}
+[data-ed-text]:focus{outline:2px solid #e3a33b}
+.ed-tools{position:absolute;z-index:9999;display:flex;gap:4px;padding:4px;background:#0b2443;border:1px solid rgba(227,163,59,.6);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.4);font:12px/1 Inter,system-ui,sans-serif}
+.ed-tools button{border:0;background:#123158;color:#e8eef4;border-radius:5px;padding:6px 8px;cursor:pointer;white-space:nowrap}
+.ed-tools button:hover{background:#e3a33b;color:#04122a}
+.ed-tools .lbl{color:#e3a33b;padding:6px 6px 6px 4px;font-weight:600}
+.ed-hl{box-shadow:0 0 0 2px rgba(227,163,59,.55) !important;border-radius:6px}
+.ed-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.media .go{position:relative;z-index:1}
+#field,.bar{display:none !important}
+`;
+
+function wire(){
+  // make text editable
+  doc.querySelectorAll(TEXT_SEL).forEach(el => {
+    if (el.closest('header.top') && !el.matches('.btn')) return;
+    el.setAttribute('contenteditable', 'true'); el.setAttribute('data-ed-text', ''); el.spellcheck = true;
+  });
+  doc.querySelectorAll('header.top a, nav a').forEach(a => a.removeAttribute('contenteditable'));
+  // show film thumbnails (normally drawn by the site's script)
+  doc.querySelectorAll('.media[data-thumb]').forEach(m => addThumb(m));
+  doc.addEventListener('input', () => setDirty(true));
+  doc.addEventListener('paste', e => { e.preventDefault(); doc.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
+  doc.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.hasAttribute && e.target.hasAttribute('data-ed-text')){
+      e.preventDefault(); if (e.shiftKey) doc.execCommand('insertLineBreak'); else e.target.blur();
+    }
+  });
+  doc.addEventListener('click', e => {
+    const a = e.target.closest('a, button');
+    if (a) e.preventDefault();
+  }, true);
+  doc.addEventListener('mouseover', e => tools(e.target));
+  doc.addEventListener('focusin', e => tools(e.target));
+}
+function addThumb(m){
+  m.querySelectorAll('.ed-thumb').forEach(x => x.remove());
+  const i = doc.createElement('img'); i.className = 'ed-thumb'; i.setAttribute('data-ed-tmp',''); i.src = m.dataset.thumb; m.prepend(i);
+}
+
+let toolSec = null, toolItem = null, curSec = null, curItem = null;
+function bar(label, actions, extra){
+  const t = doc.createElement('div'); t.className = 'ed-tools'; t.setAttribute('data-ed-tmp','');
+  const l = doc.createElement('span'); l.className = 'lbl'; l.textContent = label; t.append(l);
+  for (const [txt, fn] of actions){ const b = doc.createElement('button'); b.type = 'button'; b.textContent = txt; b.addEventListener('mousedown', ev => { ev.preventDefault(); ev.stopPropagation(); fn(); }); t.append(b); }
+  return t;
+}
+function place(t, el, side){
+  const r = el.getBoundingClientRect(), w = doc.defaultView;
+  doc.body.append(t);
+  const top = Math.max(4, r.top + w.scrollY - t.offsetHeight - 4);
+  const left = side === 'left' ? Math.max(4, r.left + w.scrollX) : Math.max(4, r.right + w.scrollX - t.offsetWidth);
+  t.style.top = top + 'px'; t.style.left = left + 'px';
+}
+function itemOf(el){
+  let it = el.closest(ITEM_SEL);
+  if (it && it.matches('.about dd')) it = it.previousElementSibling;
+  return it;
+}
+function tools(target){
+  if (!target || target.closest && target.closest('.ed-tools')) return;
+  const sec = target.closest && target.closest(SECTION_SEL);
+  const dd = target.closest && target.closest('.about dd');
+  const it = dd ? dd.previousElementSibling : (target.closest && target.closest(ITEM_SEL));
+  if (sec !== curSec){
+    toolSec && toolSec.remove(); curSec && curSec.classList.remove('ed-hl'); curSec = sec; toolSec = null;
+    if (sec){
+      const name = (sec.querySelector('h2') || {}).textContent || 'Intro';
+      toolSec = bar('Section: ' + name.trim().slice(0,24), [['Move up', () => moveSec(-1)], ['Move down', () => moveSec(1)]]);
+      place(toolSec, sec, 'left');
+    }
+  }
+  if (it !== curItem){
+    toolItem && toolItem.remove(); curItem && curItem.classList.remove('ed-hl'); curItem = it; toolItem = null;
+    if (it){
+      it.classList.add('ed-hl');
+      const acts = [['↑', () => moveItem(-1)], ['↓', () => moveItem(1)], ['Duplicate', dupItem], ['Remove', delItem]];
+      if (it.querySelector('.playable') || it.matches('.playable')) acts.splice(2, 0, ['Media', () => editMedia(it)]);
+      if (it.querySelector('a:not(.btn)')) acts.push(['Link', () => editLink(it)]);
+      toolItem = bar('Piece', acts); place(toolItem, it, 'right');
+    }
+  }
+  const a = target.closest && target.closest('a.btn');
+  if (a && !it){ toolItem && toolItem.remove(); toolItem = bar('Button', [['Link', () => { const u = prompt('Where should this button go?', a.getAttribute('href')); if (u){ a.setAttribute('href', u); setDirty(true); } }]]); place(toolItem, a, 'right'); }
+}
+function refreshTools(){ const s = curSec, i = curItem; curSec = curItem = null; toolSec && toolSec.remove(); toolItem && toolItem.remove(); s && s.classList.remove('ed-hl'); i && i.classList.remove('ed-hl'); }
+function moveSec(d){
+  const s = curSec; if (!s) return;
+  const sibs = [...doc.querySelectorAll(SECTION_SEL)], i = sibs.indexOf(s), j = i + d;
+  if (j < 0 || j >= sibs.length) return;
+  d < 0 ? sibs[j].before(s) : sibs[j].after(s);
+  refreshTools(); s.scrollIntoView({ block:'start', behavior:'smooth' }); setDirty(true);
+}
+function pairOf(it){ return it.matches('dt') ? [it, it.nextElementSibling] : [it]; }
+function moveItem(d){
+  const it = curItem; if (!it) return;
+  const group = pairOf(it), same = el => el && el.tagName === it.tagName && (it.matches('dt') || el.className.replace(' ed-hl','') === it.className.replace(' ed-hl',''));
+  if (d < 0){
+    let prev = it.previousElementSibling; if (it.matches('dt') && prev) prev = prev.previousElementSibling;
+    if (!same(prev)) return; prev.before(...group);
+  } else {
+    let next = group[group.length-1].nextElementSibling;
+    if (!same(next)) return; const nextGroup = pairOf(next); nextGroup[nextGroup.length-1].after(...group);
+  }
+  refreshTools(); setDirty(true);
+}
+function dupItem(){
+  const it = curItem; if (!it) return;
+  const group = pairOf(it), copies = group.map(g => g.cloneNode(true));
+  copies.forEach(c => { c.classList.remove('ed-hl'); c.querySelectorAll('.ed-hl').forEach(x => x.classList.remove('ed-hl')); });
+  const prev = group[0].previousSibling, ws = prev && prev.nodeType === 3 ? prev.textContent : '\n';
+  group[group.length-1].after(doc.createTextNode(ws), ...copies);
+  copies[0].querySelectorAll('.media[data-thumb]').forEach(addThumb);
+  refreshTools(); setDirty(true);
+  const first = copies[0].querySelector('[data-ed-text]') || copies[0];
+  first.scrollIntoView({ block:'center', behavior:'smooth' }); first.focus && first.focus();
+}
+function delItem(){
+  const it = curItem; if (!it) return;
+  const name = ((it.querySelector('h3') || it).textContent || '').trim().slice(0,60);
+  if (!confirm('Remove "' + name + '"?')) return;
+  pairOf(it).forEach(g => g.remove()); refreshTools(); setDirty(true);
+}
+function editLink(it){
+  const a = it.querySelector('a:not(.btn)'); const u = prompt('Link address', a.getAttribute('href'));
+  if (u !== null){ a.setAttribute('href', u); setDirty(true); }
+}
+
+/* media: YouTube or Drive link, thumbnail, MP3 */
+function ytId(u){ const m = u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : (/^[\w-]{11}$/.test(u) ? u : null); }
+function driveId(u){ const m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/[?&]id=([\w-]+)/); return m ? m[1] : null; }
+function slug(s){ return (s || 'piece').toLowerCase().normalize('NFKD').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'').slice(0,40) || 'piece'; }
+let mediaTarget = null;
+function editMedia(it){
+  const p = it.matches('.playable') ? it : it.querySelector('.playable'); mediaTarget = { it, p };
+  const isTrack = p.classList.contains('track');
+  $('mTitle').textContent = 'Media: ' + ((it.querySelector('h3') || {}).textContent || '').trim();
+  $('mHelp').textContent = isTrack ? 'Paste a Google Drive or YouTube link. Upload an MP3 to get the live waveform and the spectrum ring.' : 'Paste the YouTube link or a Google Drive link of the film.';
+  $('mLink').value = p.dataset.yt ? 'https://youtu.be/' + p.dataset.yt : (p.dataset.src ? p.dataset.src.replace('/preview','/view') : '');
+  $('mThumb').value = ''; $('mAudio').value = ''; $('mAudioWrap').hidden = !isTrack; $('mMsg').textContent = '';
+  $('media').showModal();
+}
+$('mOk').onclick = async e => {
+  e.preventDefault();
+  const { it, p } = mediaTarget, msg = $('mMsg'), link = $('mLink').value.trim();
+  const name = slug(((it.querySelector('h3') || {}).textContent || '').trim());
+  msg.className = 'msg'; $('mOk').disabled = true;
+  try {
+    if (link){
+      const y = ytId(link), d = driveId(link);
+      if (y){ p.dataset.kind = 'yt'; p.dataset.yt = y; delete p.dataset.src; }
+      else if (d){ p.dataset.kind = 'drive'; p.dataset.src = `https://drive.google.com/file/d/${d}/preview`; delete p.dataset.yt; }
+      else throw new Error('That link isn\'t a YouTube or Google Drive link.');
+    }
+    const th = $('mThumb').files[0];
+    if (th){
+      if (th.size > 5e6) throw new Error('Keep the thumbnail under 5 MB.');
+      msg.textContent = 'Uploading thumbnail…';
+      const ext = (th.name.split('.').pop() || 'jpg').toLowerCase(), path = `img/${name}-${Date.now().toString(36)}.${ext}`;
+      await putFile(path, await fileToB64(th), 'Add thumbnail for ' + name);
+      p.dataset.thumb = path; const di = p.querySelector('.disc img'); if (di) di.setAttribute('src', path);
+      if (p.matches('.media')) addThumb(p);
+    }
+    const au = $('mAudio').files[0];
+    if (au){
+      if (au.size > 40e6) throw new Error('Keep the MP3 under 40 MB.');
+      msg.textContent = 'Uploading audio…';
+      const path = `audio/${name}-${Date.now().toString(36)}.mp3`;
+      await putFile(path, await fileToB64(au), 'Add audio for ' + name);
+      p.dataset.audio = path;
+    }
+    setDirty(true); $('media').close();
+  } catch(err){ msg.className = 'msg err'; msg.textContent = err.message; }
+  $('mOk').disabled = false;
+};
+
+/* publish */
+function cleanBody(){
+  const b = doc.body.cloneNode(true);
+  b.querySelectorAll('[data-ed-tmp]').forEach(x => x.remove());
+  b.querySelectorAll('[contenteditable]').forEach(x => { x.removeAttribute('contenteditable'); x.removeAttribute('data-ed-text'); x.removeAttribute('spellcheck'); });
+  b.querySelectorAll('.ed-hl').forEach(x => { x.classList.remove('ed-hl'); if (!x.className) x.removeAttribute('class'); });
+  b.querySelectorAll('[style=""]').forEach(x => x.removeAttribute('style'));
+  // keep the player's titles in step with the visible text
+  b.querySelectorAll('.playable').forEach(p => {
+    const box = p.matches('.track') ? p : p.closest('.work');
+    const h = box && box.querySelector('h3'), role = box && box.querySelector('.role'), when = box && box.querySelector('.when');
+    if (h){ const t = h.textContent.trim(); p.dataset.title = t; const disc = p.querySelector('.disc'); if (disc) disc.setAttribute('aria-label', 'Play ' + t); }
+    if (role){
+      let sub = role.textContent.replace(/\s+/g,' ').trim();
+      if (p.matches('.track')){ const meta = p.querySelector('.meta'); const date = meta ? meta.textContent.split('|').pop().trim() : ''; if (date && !sub.includes(date)) sub += ' | ' + date; }
+      p.dataset.sub = sub;
+    }
+  });
+  // nav follows the section order
+  const nav = b.querySelector('header.top nav');
+  if (nav){
+    const links = [...nav.querySelectorAll('a[href^="#"]')], order = [...b.querySelectorAll('body > section[id]')].map(s => '#' + s.id);
+    const rank = a => order.indexOf(a.getAttribute('href')) + 1 || 99;
+    const sorted = [...links].sort((x,y) => rank(x) - rank(y));
+    if (sorted.some((a,i) => a !== links[i])){
+      const marks = links.map(a => { const m = b.ownerDocument.createComment(''); a.replaceWith(m); return m; });
+      marks.forEach((m,i) => m.replaceWith(sorted[i]));
+    }
+  }
+  return b.innerHTML;
+}
+$('save').onclick = async () => {
+  $('save').disabled = true; $('status').className = ''; $('status').textContent = 'Publishing…';
+  try {
+    const { head, tail } = splitPage(src);
+    let body = cleanBody();
+    if (!/\n\s*$/.test(body)) body += '\n';
+    const html = head + body + tail;
+    const res = await putFile('index.html', utf8b64(html), 'Edit site from the site editor', sha);
+    sha = res.content.sha; src = html; setDirty(false);
+    $('status').textContent = 'Published. Live in about a minute.';
+  } catch(e){
+    $('save').disabled = false; $('status').className = 'dirty';
+    $('status').textContent = e.status === 409 ? 'The site changed elsewhere. Copy your text, press Discard changes, and redo it.' : 'Couldn\'t publish: ' + e.message;
+  }
+};
+$('discard').onclick = () => { if (!dirty || confirm('Throw away your unpublished changes?')) openEditor(); };
+
+boot();
+</script>
+</body>
+</html>
