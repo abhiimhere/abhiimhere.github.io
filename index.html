@@ -474,8 +474,8 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
   <div class="forms">
     <form class="enq" id="quoteForm" data-kind="quote" novalidate>
-      <h3>Request a quote</h3>
-      <p class="sub">Tell me about the project and I'll reply with availability and a quote, usually within two working days.</p>
+      <h3>Start a project</h3>
+      <p class="sub">Tell me about the project or invitation and I'll reply with my availability and next steps, usually within two working days.</p>
       <div class="grid2">
         <div class="fld"><label for="qName">Name</label><input id="qName" name="name" autocomplete="name" required maxlength="80"></div>
         <div class="fld"><label for="qEmail">Email</label><input id="qEmail" name="email" type="email" autocomplete="email" required maxlength="120"></div>
@@ -483,13 +483,12 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
         <div class="fld"><label for="qService">Area of work</label>
           <select id="qService" name="service" required>
             <option value="">Choose one</option>
-            <option>Sound design for film and animation</option>
+            <option>Sound for film and animation</option>
             <option>Immersive mixing in Dolby Atmos, 5.1 or stereo</option>
-            <option>Original score and composition</option>
-            <option>Music production and arrangement</option>
-            <option>Location and sync sound recording</option>
+            <option>Original score and music production</option>
             <option>Installation and sound art</option>
             <option>Workshops, teaching and mentoring</option>
+            <option>An invitation to a festival, talk or residency</option>
             <option>A collaboration of another kind</option>
           </select></div>
         <div class="fld"><label for="qScope">Length or scope <i>(optional)</i></label><input id="qScope" name="scope" maxlength="100" placeholder="e.g. 12 minute short, 3 tracks"></div>
@@ -506,7 +505,7 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       </div>
       <div class="fld"><label for="qDetails">About the project</label><textarea id="qDetails" name="details" required minlength="20" maxlength="2000" rows="6"></textarea><span class="count" aria-live="polite"></span></div>
       <input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="send"><button class="btn solid" type="submit">Send request</button><p class="status" role="status"></p></div>
+      <div class="send"><button class="btn solid" type="submit">Send</button><p class="status" role="status"></p></div>
     </form>
 
     <form class="enq q" id="queryForm" data-kind="query" novalidate>
