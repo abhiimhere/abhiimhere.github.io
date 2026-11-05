@@ -204,7 +204,7 @@ $('logout').onclick = () => { if (dirty && !confirm('You have unpublished change
 
 /* ---------- editor ---------- */
 let src = null, sha = null, dirty = false, doc = null;
-const SECTION_SEL = 'body > section';
+const SECTION_SEL = 'section';
 const ITEM_SEL = '.work, .trio > article, .track, .recog > div, .recog li, .about dt, .skills > p';
 const TEXT_SEL = 'h1, h2, h3, p, li, dt, dd, footer, .btn, figcaption';
 function setDirty(v){ dirty = v; $('save').disabled = !v; $('status').textContent = v ? 'Unpublished changes' : 'Up to date'; $('status').className = v ? 'dirty' : ''; }
@@ -250,7 +250,7 @@ function wire(){
   // make text editable
   doc.querySelectorAll(TEXT_SEL).forEach(el => {
     if (el.closest('header.top') && !el.matches('.btn')) return;
-    el.setAttribute('contenteditable', 'true'); el.setAttribute('data-ed-text', ''); el.spellcheck = true;
+    el.setAttribute('contenteditable', 'true'); el.setAttribute('data-ed-text', ''); el.spellcheck = true; el.setAttribute('data-gramm', 'false'); el.setAttribute('data-gramm_editor', 'false'); el.setAttribute('data-enable-grammarly', 'false');
   });
   doc.querySelectorAll('header.top a, nav a').forEach(a => a.removeAttribute('contenteditable'));
   // show film thumbnails (normally drawn by the site's script)
@@ -414,9 +414,16 @@ $('mOk').onclick = async e => {
 function cleanBody(){
   const b = doc.body.cloneNode(true);
   b.querySelectorAll('[data-ed-tmp]').forEach(x => x.remove());
-  b.querySelectorAll('[contenteditable]').forEach(x => { x.removeAttribute('contenteditable'); x.removeAttribute('data-ed-text'); x.removeAttribute('spellcheck'); });
+  b.querySelectorAll('[contenteditable]').forEach(x => { x.removeAttribute('contenteditable'); x.removeAttribute('data-ed-text'); x.removeAttribute('spellcheck'); x.removeAttribute('data-gramm'); x.removeAttribute('data-gramm_editor'); x.removeAttribute('data-enable-grammarly'); });
   b.querySelectorAll('.ed-hl').forEach(x => { x.classList.remove('ed-hl'); if (!x.className) x.removeAttribute('class'); });
   b.querySelectorAll('[style=""]').forEach(x => x.removeAttribute('style'));
+  // strip anything browser extensions (Grammarly, QuillBot and others) slipped into the page
+  b.querySelectorAll('*').forEach(x => {
+    if (x.tagName.includes('-') && !src.includes('<' + x.tagName.toLowerCase())) { x.remove(); return; }
+    if (x.getAttribute('bis_label') === 'style') x.removeAttribute('style');
+    for (const a of [...x.attributes]) if (/^(bis_|data-(qb|gramm|lt-|new-gr|enable-grammarly|ms-editor))/i.test(a.name)) x.removeAttribute(a.name);
+    if (x.getAttribute('class') === '') x.removeAttribute('class');
+  });
   // keep the player's titles in step with the visible text
   b.querySelectorAll('.playable').forEach(p => {
     const box = p.matches('.track') ? p : p.closest('.work');
@@ -431,7 +438,7 @@ function cleanBody(){
   // nav follows the section order
   const nav = b.querySelector('header.top nav');
   if (nav){
-    const links = [...nav.querySelectorAll('a[href^="#"]')], order = [...b.querySelectorAll('body > section[id]')].map(s => '#' + s.id);
+    const links = [...nav.querySelectorAll('a[href^="#"]')], order = [...b.querySelectorAll('section[id]')].map(s => '#' + s.id);
     const rank = a => order.indexOf(a.getAttribute('href')) + 1 || 99;
     const sorted = [...links].sort((x,y) => rank(x) - rank(y));
     if (sorted.some((a,i) => a !== links[i])){
