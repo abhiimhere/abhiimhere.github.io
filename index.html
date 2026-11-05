@@ -194,6 +194,9 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 .enq.open .fld textarea{min-height:190px}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--vu);background:rgba(6,22,44,.85)}
 .fld input[type=date]{color-scheme:dark}
+.fld input:-webkit-autofill,.fld input:-webkit-autofill:hover,.fld input:-webkit-autofill:focus,.fld textarea:-webkit-autofill,.fld select:-webkit-autofill{-webkit-text-fill-color:var(--paper);caret-color:var(--paper);-webkit-box-shadow:0 0 0 1000px #0a1d36 inset;box-shadow:0 0 0 1000px #0a1d36 inset;transition:background-color 9999s ease 0s}
+.fld input:autofill{background:#0a1d36;color:var(--paper)}
+.fld input,.fld textarea,.fld select{color-scheme:dark}
 .count{align-self:flex-end;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums;margin-top:-2px}
 .count.near{color:var(--vu)}
 .expand{display:inline-flex;align-items:center;gap:10px;background:none;border:0;padding:4px 0;margin:-4px 0 18px;color:var(--vu);font:500 15px Inter,system-ui,sans-serif;cursor:pointer}
