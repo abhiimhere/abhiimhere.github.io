@@ -998,9 +998,9 @@ addEventListener('resize', () => { if (bar.classList.contains('on')) document.do
 })();
 </script>
 <script>
-/* enquiry form: sent to Abhinav's inbox through FormSubmit */
+/* enquiry form: sent to Abhinav's Gmail through his own Google Apps Script mailer */
 (() => {
-  const ENDPOINT = 'https://formsubmit.co/ajax/abhinavkjayan005@gmail.com';
+  const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyqDo3UPK3W36s-1fqvlIR-VUC0rlBv97vKQTfuJMs5J3U9q83bmf8iH7IXi4Tbtg89/exec';
   const f = document.getElementById('enqForm'); if (!f) return;
   const st = f.querySelector('.status'), send = f.querySelector('button[type=submit]');
   const more = f.querySelector('.expand'), extra = f.querySelector('#extra');
@@ -1034,15 +1034,13 @@ addEventListener('resize', () => { if (bar.classList.contains('on')) document.do
     }
     const d = Object.fromEntries(new FormData(f));
     if (d._honey) return;
-    const body = open
-      ? { _subject: 'Website project: ' + d.service + ', ' + d.subject, Type: 'Project or invitation', Name: d.name, Email: d.email, Subject: d.subject, 'Area of work': d.service, 'Company or production': d.organisation || '-', 'Length or scope': d.scope || '-', Deadline: d.deadline || '-', Budget: d.budget || 'Not sure yet', Link: d.link || '-', 'About the project': d.message }
-      : { _subject: 'Website query: ' + d.subject, Type: 'Message', Name: d.name, Email: d.email, Subject: d.subject, Message: d.message };
-    body._replyto = d.email; body._template = 'table'; body._captcha = 'false';
+    const keys = open ? ['name','email','subject','message','service','organisation','scope','deadline','budget','link'] : ['name','email','subject','message'];
+    const body = Object.fromEntries(keys.map(k => [k, d[k] || '']));
     send.disabled = true; st.textContent = 'Sending…';
     try {
-      const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), redirect: 'follow' });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok || String(j.success) === 'false') throw 0;
+      if (!r.ok || j.ok !== true) throw 0;
       f.reset(); setOpen(false);
       st.textContent = open ? "Thank you. Your story is on its way and I'll be in touch soon." : "Thank you. I'll get back to you soon.";
       st.classList.add('ok');
