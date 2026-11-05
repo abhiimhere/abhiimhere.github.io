@@ -121,7 +121,7 @@ const $ = id => document.getElementById(id);
 const enc = new TextEncoder(), dec = new TextDecoder();
 let TOKEN = null;
 
-$('tokLink').href = 'https://github.com/settings/personal-access-tokens/new?name=Website%20editor&description=Lets%20the%20site%20editor%20change%20abhiimhere.github.io&target_name=abhiimhere&expires_in=366&contents=write';
+$('tokLink').href = 'https://github.com/settings/personal-access-tokens/new?name=Website%20editor&description=Lets%20the%20site%20editor%20change%20abhiimhere.github.io&target_name=abhiimhere&expires_in=365&contents=write';
 
 /* ---------- crypto: the GitHub key is stored only encrypted with your password ---------- */
 const b64 = u8 => btoa(String.fromCharCode(...u8));
