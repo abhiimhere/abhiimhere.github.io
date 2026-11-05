@@ -20,7 +20,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Serif+Devanagari:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{
   --graphite:#051327;
@@ -140,6 +140,20 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .trio h3{font-size:22px;font-weight:500;margin:0 0 4px;line-height:1.2}
 .trio p{margin:0 0 10px;color:var(--dim)}
 .trio .role{margin-bottom:12px}
+
+/* antara feature */
+.antara{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);margin-top:44px;border-radius:16px;overflow:hidden;text-decoration:none;color:#f3e8d6;background:radial-gradient(80% 120% at 0% 0%,rgba(232,163,61,.18),transparent 60%),linear-gradient(135deg,#2a1013,#140a0c);border:1px solid rgba(243,232,214,.14);transition:transform .35s ease,box-shadow .35s ease}
+.antara:hover{color:#f3e8d6;transform:translateY(-3px);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.antara .pics{display:grid;grid-template-columns:1fr 1fr;min-height:220px}
+.antara .pics img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s ease}
+.antara:hover .pics img{transform:scale(1.04)}
+.antara .txt{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:28px clamp(22px,3vw,40px)}
+.antara .deva{font-family:'Noto Serif Devanagari',serif;font-size:34px;line-height:1.2;color:#e8a33d}
+.antara b{font-size:clamp(22px,2.4vw,30px);font-weight:400;letter-spacing:-.02em;line-height:1.15}
+.antara .d{color:#b6a08b;max-width:46ch}
+.antara .go{margin-top:10px;align-self:flex-start;padding:11px 18px;border-radius:999px;background:#e8a33d;color:#0d0708;font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;transition:background .2s}
+.antara:hover .go{background:#f3e8d6}
+@media (max-width:860px){.antara{grid-template-columns:1fr}.antara .pics{min-height:0;aspect-ratio:16/10}}
 
 /* tracks */
 .track{display:grid;grid-template-columns:clamp(150px,19vw,240px) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center;padding:36px 0;border-top:1px solid var(--line)}
@@ -408,9 +422,18 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
       <p class="role">Researcher <i class="sep">|</i> Sound Designer</p>
       <p class="when">Installation <i class="sep">|</i> Carnegie Library, Dún Laoghaire <i class="sep">|</i> May 2026</p>
       <p>An audio-visual installation on how microtonal ornamentation shapes raga identity, using Darbari Kanada, Jog and Kafi, with Carnatic guitarist Abhay Nayampally and sitarist Paulson K J.</p>
-      <p>Includes a research paper, musician interviews and audience response data. <a href="https://abhiimhere.github.io/Antara" target="_blank" rel="noopener">Visit the Antara site</a></p>
+      <p>Includes a research paper, musician interviews and audience response data. <a href="https://abhiimhere.github.io/Antara/">Explore Antara</a></p>
     </article>
   </div>
+  <a class="antara" href="https://abhiimhere.github.io/Antara/">
+    <span class="pics" aria-hidden="true"><img src="https://abhiimhere.github.io/Antara/img/mural.jpg" alt="" loading="lazy"><img src="https://abhiimhere.github.io/Antara/img/cubist.jpg" alt="" loading="lazy"></span>
+    <span class="txt">
+      <span class="deva" lang="hi">अन्तरा</span>
+      <b>Antara, between the notes</b>
+      <span class="d">Hear one melody on bansuri and on equal-tempered keys, flipped mid-phrase, and see what twenty listeners heard.</span>
+      <span class="go">Explore Antara</span>
+    </span>
+  </a>
 </section>
 
 <section id="music" aria-labelledby="music-h">
