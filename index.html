@@ -177,33 +177,40 @@ h2{font-weight:300;font-size:clamp(34px,4.8vw,60px);letter-spacing:-.03em;line-h
 .links{display:flex;gap:24px;flex-wrap:wrap;margin-top:22px;color:var(--dim)}
 footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
 
-/* enquiry forms */
-.forms{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);margin-top:56px;align-items:start}
+/* enquiry form: a short note that can open into a full project brief */
+.forms{margin-top:56px;max-width:760px}
 .forms form{border-top:2px solid var(--vu);padding-top:20px}
-.forms form.q{border-top-color:var(--line)}
 .forms h3{font-size:24px;font-weight:500;letter-spacing:-.01em;margin:0 0 6px}
-.forms .sub{color:var(--dim);margin:0 0 22px;font-size:15.5px;max-width:52ch}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
-.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
+.forms .sub{color:var(--dim);margin:0 0 22px;font-size:15.5px;max-width:56ch}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-bottom:14px}
 .grid2 .fld{margin-bottom:0}
-.grid2{margin-bottom:14px}
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
 .fld label{font-size:13.5px;color:var(--dim)}
 .fld label i{font-style:normal;opacity:.7}
-.fld input,.fld select,.fld textarea{width:100%;font:16px/1.4 Inter,system-ui,sans-serif;color:var(--paper);background:rgba(6,22,44,.6);border:1px solid rgba(170,210,250,.2);border-radius:10px;padding:11px 13px;transition:border-color .2s,background .2s}
+.fld input,.fld select,.fld textarea{width:100%;font:16px/1.4 Inter,system-ui,sans-serif;color:var(--paper);background:rgba(6,22,44,.6);border:1px solid rgba(170,210,250,.2);border-radius:10px;padding:11px 13px;transition:border-color .2s,background .2s,min-height .4s}
 .fld select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
 .fld select option{background:var(--graphite)}
 .fld textarea{resize:vertical;min-height:120px}
+.enq.open .fld textarea{min-height:190px}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--vu);background:rgba(6,22,44,.85)}
 .fld input[type=date]{color-scheme:dark}
-.count{align-self:flex-end;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.count{align-self:flex-end;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums;margin-top:-2px}
 .count.near{color:var(--vu)}
+.expand{display:inline-flex;align-items:center;gap:10px;background:none;border:0;padding:4px 0;margin:-4px 0 18px;color:var(--vu);font:500 15px Inter,system-ui,sans-serif;cursor:pointer}
+.expand::before{content:"";width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .35s ease}
+.expand[aria-expanded=true]::before{transform:translateY(2px) rotate(-135deg)}
+.expand:hover{text-decoration:underline;text-underline-offset:4px}
+.extra-wrap{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1),opacity .35s ease}
+.enq.open .extra-wrap{grid-template-rows:1fr;opacity:1}
+.extra-wrap>fieldset{min-height:0;overflow:hidden;border:0;margin:0;padding:0}
+.enq.open .extra-wrap>fieldset{padding-bottom:6px}
+@media (prefers-reduced-motion:reduce){.extra-wrap,.expand::before{transition:none}}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .send{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
 .send .btn:disabled{opacity:.5;cursor:wait}
 .status{margin:0;font-size:15px;color:var(--dim)}
 .status.ok{color:#7fd3a8}
 .status.err{color:#f08a7e}
-@media (max-width:860px){.forms{grid-template-columns:1fr;gap:48px}}
 @media (max-width:520px){.grid2{grid-template-columns:1fr}}
 
 /* master playbar */
@@ -473,50 +480,46 @@ footer{padding:28px 0 40px;color:var(--dim);font-size:14px}
   </div>
 
   <div class="forms">
-    <form class="enq" id="quoteForm" data-kind="quote" novalidate>
-      <h3>Start a project</h3>
-      <p class="sub">Tell me about the project or invitation and I'll reply with my availability and next steps, usually within two working days.</p>
+    <form class="enq" id="enqForm" novalidate>
+      <h3>Send a message</h3>
+      <p class="sub">A quick note is plenty. If you have a project or an invitation in mind, tell me the whole story.</p>
       <div class="grid2">
-        <div class="fld"><label for="qName">Name</label><input id="qName" name="name" autocomplete="name" required maxlength="80"></div>
-        <div class="fld"><label for="qEmail">Email</label><input id="qEmail" name="email" type="email" autocomplete="email" required maxlength="120"></div>
-        <div class="fld"><label for="qOrg">Company or production <i>(optional)</i></label><input id="qOrg" name="organisation" autocomplete="organization" maxlength="100"></div>
-        <div class="fld"><label for="qService">Area of work</label>
-          <select id="qService" name="service" required>
-            <option value="">Choose one</option>
-            <option>Sound for film and animation</option>
-            <option>Immersive mixing in Dolby Atmos, 5.1 or stereo</option>
-            <option>Original score and music production</option>
-            <option>Installation and sound art</option>
-            <option>Workshops, teaching and mentoring</option>
-            <option>An invitation to a festival, talk or residency</option>
-            <option>A collaboration of another kind</option>
-          </select></div>
-        <div class="fld"><label for="qScope">Length or scope <i>(optional)</i></label><input id="qScope" name="scope" maxlength="100" placeholder="e.g. 12 minute short, 3 tracks"></div>
-        <div class="fld"><label for="qDeadline">Deadline <i>(optional)</i></label><input id="qDeadline" name="deadline" type="date"></div>
-        <div class="fld"><label for="qBudget">Budget <i>(optional)</i></label>
-          <select id="qBudget" name="budget">
-            <option value="">Not sure yet</option>
-            <option>Under €500</option>
-            <option>€500 to €1,500</option>
-            <option>€1,500 to €5,000</option>
-            <option>Over €5,000</option>
-          </select></div>
-        <div class="fld"><label for="qLink">Link to a cut or reference <i>(optional)</i></label><input id="qLink" name="link" type="url" maxlength="300" placeholder="https://"></div>
+        <div class="fld"><label for="eName">Name</label><input id="eName" name="name" autocomplete="name" required maxlength="80"></div>
+        <div class="fld"><label for="eEmail">Email</label><input id="eEmail" name="email" type="email" autocomplete="email" required maxlength="120"></div>
       </div>
-      <div class="fld"><label for="qDetails">About the project</label><textarea id="qDetails" name="details" required minlength="20" maxlength="2000" rows="6"></textarea><span class="count" aria-live="polite"></span></div>
+      <div class="fld"><label for="eSubject">Subject</label><input id="eSubject" name="subject" required maxlength="80"><span class="count" aria-live="polite"></span></div>
+      <div class="fld"><label for="eMsg" data-short="Message" data-long="About the project">Message</label><textarea id="eMsg" name="message" required maxlength="500" rows="5"></textarea><span class="count" aria-live="polite"></span></div>
+      <button class="expand" type="button" aria-expanded="false" aria-controls="extra">Tell me the whole story</button>
+      <div class="extra-wrap"><fieldset id="extra" disabled>
+        <legend class="hp">Project details</legend>
+        <div class="grid2">
+          <div class="fld"><label for="eService">Area of work</label>
+            <select id="eService" name="service" required>
+              <option value="">Choose one</option>
+              <option>Sound for film and animation</option>
+              <option>Immersive mixing in Dolby Atmos, 5.1 or stereo</option>
+              <option>Original score and music production</option>
+              <option>Installation and sound art</option>
+              <option>Workshops, teaching and mentoring</option>
+              <option>An invitation to a festival, talk or residency</option>
+              <option>A collaboration of another kind</option>
+            </select></div>
+          <div class="fld"><label for="eOrg">Company or production <i>(optional)</i></label><input id="eOrg" name="organisation" autocomplete="organization" maxlength="100"></div>
+          <div class="fld"><label for="eScope">Length or scope <i>(optional)</i></label><input id="eScope" name="scope" maxlength="100" placeholder="e.g. 12 minute short, 3 tracks"></div>
+          <div class="fld"><label for="eDeadline">Deadline <i>(optional)</i></label><input id="eDeadline" name="deadline" type="date"></div>
+          <div class="fld"><label for="eBudget">Budget <i>(optional)</i></label>
+            <select id="eBudget" name="budget">
+              <option value="">Not sure yet</option>
+              <option>Under €500</option>
+              <option>€500 to €1,500</option>
+              <option>€1,500 to €5,000</option>
+              <option>Over €5,000</option>
+            </select></div>
+          <div class="fld"><label for="eLink">Link to a cut or reference <i>(optional)</i></label><input id="eLink" name="link" type="url" maxlength="300" placeholder="https://"></div>
+        </div>
+      </fieldset></div>
       <input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="send"><button class="btn solid" type="submit">Send</button><p class="status" role="status"></p></div>
-    </form>
-
-    <form class="enq q" id="queryForm" data-kind="query" novalidate>
-      <h3>Quick question</h3>
-      <p class="sub">For anything short that isn't a project.</p>
-      <div class="fld"><label for="mName">Name</label><input id="mName" name="name" autocomplete="name" required maxlength="80"></div>
-      <div class="fld"><label for="mEmail">Email</label><input id="mEmail" name="email" type="email" autocomplete="email" required maxlength="120"></div>
-      <div class="fld"><label for="mSubject">Subject</label><input id="mSubject" name="subject" required maxlength="80"><span class="count" aria-live="polite"></span></div>
-      <div class="fld"><label for="mMsg">Message</label><textarea id="mMsg" name="message" required maxlength="500" rows="5"></textarea><span class="count" aria-live="polite"></span></div>
-      <input class="hp" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="send"><button class="btn" type="submit">Send question</button><p class="status" role="status"></p></div>
     </form>
   </div>
 </section>
@@ -992,46 +995,59 @@ addEventListener('resize', () => { if (bar.classList.contains('on')) document.do
 })();
 </script>
 <script>
-/* enquiry forms: sent to Abhinav's inbox through FormSubmit */
+/* enquiry form: sent to Abhinav's inbox through FormSubmit */
 (() => {
   const ENDPOINT = 'https://formsubmit.co/ajax/abhinavkjayan005@gmail.com';
-  document.querySelectorAll('form.enq').forEach(f => {
-    f.querySelectorAll('[maxlength]').forEach(el => {
-      const c = el.parentElement.querySelector('.count'); if (!c || el.tagName === 'SELECT') return;
-      const max = +el.maxLength, upd = () => { const n = el.value.length; c.textContent = n + ' / ' + max; c.classList.toggle('near', n > max * .9); };
-      el.addEventListener('input', upd); upd();
-    });
-    const st = f.querySelector('.status'), btn = f.querySelector('button[type=submit]');
-    f.addEventListener('submit', async e => {
-      e.preventDefault();
-      st.className = 'status';
-      const bad = [...f.elements].find(el => el.willValidate && !el.checkValidity());
-      if (bad) {
-        const name = (f.querySelector('label[for="' + bad.id + '"]')?.childNodes[0].textContent || 'This field').trim();
-        st.textContent = bad.validity.valueMissing ? name + ' is needed.' : bad.validity.typeMismatch ? 'Check the ' + name.toLowerCase() + '.' : bad.validity.tooShort ? 'Add a little more about the project.' : 'Check the ' + name.toLowerCase() + '.';
-        st.classList.add('err'); bad.focus(); return;
-      }
-      const d = Object.fromEntries(new FormData(f));
-      if (d._honey) return;
-      const quote = f.dataset.kind === 'quote';
-      const body = quote
-        ? { _subject: 'Website quote: ' + d.service + ' from ' + d.name, Type: 'Quote request', Name: d.name, Email: d.email, 'Company or production': d.organisation || '-', 'What they need': d.service, 'Length or scope': d.scope || '-', Deadline: d.deadline || '-', Budget: d.budget || 'Not sure yet', Link: d.link || '-', 'About the project': d.details }
-        : { _subject: 'Website query: ' + d.subject, Type: 'Quick question', Name: d.name, Email: d.email, Subject: d.subject, Message: d.message };
-      body._replyto = d.email; body._template = 'table'; body._captcha = 'false';
-      btn.disabled = true; st.textContent = 'Sending…';
-      try {
-        const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || String(j.success) === 'false') throw 0;
-        f.reset(); f.querySelectorAll('[maxlength]').forEach(el => el.dispatchEvent(new Event('input')));
-        st.textContent = quote ? "Thanks. Your request is on its way and I'll be in touch soon." : "Thanks. I'll get back to you soon.";
-        st.classList.add('ok');
-      } catch (_) {
-        st.innerHTML = 'That didn\'t send. Please email me at <a href="mailto:abhinavkjayan005@gmail.com">abhinavkjayan005@gmail.com</a>.';
-        st.classList.add('err');
-      }
-      btn.disabled = false;
-    });
+  const f = document.getElementById('enqForm'); if (!f) return;
+  const st = f.querySelector('.status'), send = f.querySelector('button[type=submit]');
+  const more = f.querySelector('.expand'), extra = f.querySelector('#extra');
+  const msg = f.querySelector('#eMsg'), msgLabel = f.querySelector('label[for="eMsg"]');
+  const counters = [];
+  f.querySelectorAll('input[maxlength],textarea[maxlength]').forEach(el => {
+    const c = el.parentElement.querySelector('.count'); if (!c) return;
+    const upd = () => { const n = el.value.length, max = el.maxLength; c.textContent = n + ' / ' + max; c.classList.toggle('near', n > max * .9); };
+    el.addEventListener('input', upd); counters.push(upd); upd();
+  });
+  const setOpen = open => {
+    f.classList.toggle('open', open); extra.disabled = !open;
+    more.setAttribute('aria-expanded', open); more.textContent = open ? 'Keep it short' : 'Tell me the whole story';
+    msg.maxLength = open ? 2000 : 500; msgLabel.textContent = open ? msgLabel.dataset.long : msgLabel.dataset.short;
+    if (!open && msg.value.length > 500) msg.maxLength = Math.max(500, msg.value.length);
+    counters.forEach(u => u());
+    if (open) setTimeout(() => f.querySelector('#eService').focus({ preventScroll: true }), 320);
+  };
+  more.addEventListener('click', () => setOpen(!f.classList.contains('open')));
+  if (location.hash === '#project') { setOpen(true); }
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    st.className = 'status';
+    const open = f.classList.contains('open');
+    if (!open && msg.value.length > 500) { st.textContent = 'Shorten the message to 500 characters, or tell me the whole story.'; st.classList.add('err'); msg.focus(); return; }
+    const bad = [...f.elements].find(el => el.willValidate && !el.checkValidity());
+    if (bad) {
+      const name = (f.querySelector('label[for="' + bad.id + '"]')?.childNodes[0].textContent || 'This field').trim();
+      st.textContent = bad.validity.valueMissing ? (bad.tagName === 'SELECT' ? 'Choose an area of work.' : name + ' is needed.') : 'Check the ' + name.toLowerCase() + '.';
+      st.classList.add('err'); bad.focus(); return;
+    }
+    const d = Object.fromEntries(new FormData(f));
+    if (d._honey) return;
+    const body = open
+      ? { _subject: 'Website project: ' + d.service + ', ' + d.subject, Type: 'Project or invitation', Name: d.name, Email: d.email, Subject: d.subject, 'Area of work': d.service, 'Company or production': d.organisation || '-', 'Length or scope': d.scope || '-', Deadline: d.deadline || '-', Budget: d.budget || 'Not sure yet', Link: d.link || '-', 'About the project': d.message }
+      : { _subject: 'Website query: ' + d.subject, Type: 'Message', Name: d.name, Email: d.email, Subject: d.subject, Message: d.message };
+    body._replyto = d.email; body._template = 'table'; body._captcha = 'false';
+    send.disabled = true; st.textContent = 'Sending…';
+    try {
+      const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) === 'false') throw 0;
+      f.reset(); setOpen(false);
+      st.textContent = open ? "Thank you. Your story is on its way and I'll be in touch soon." : "Thank you. I'll get back to you soon.";
+      st.classList.add('ok');
+    } catch (_) {
+      st.innerHTML = 'That didn\'t send. Please email me at <a href="mailto:abhinavkjayan005@gmail.com">abhinavkjayan005@gmail.com</a>.';
+      st.classList.add('err');
+    }
+    send.disabled = false;
   });
 })();
 </script>
